@@ -20,7 +20,7 @@
         android:textSize="28dp" />
 
     <LinearLayout
-        android:layout_marginVertical="10dp"
+        android:layout_marginVertical="20dp"
         android:layout_below="@+id/getStartedLable"
         android:id="@+id/phoneNumberContainer"
         android:layout_width="match_parent"
@@ -45,7 +45,6 @@
             app:boxStrokeWidth="0dp"
             app:boxStrokeWidthFocused="0dp"
             android:id="@+id/phoneNumberInputText"
-
             >
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -62,52 +61,50 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginVertical="10dp"
+        android:id="@+id/passwordContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/passwordContainer"
-        android:layout_below="@+id/phoneNumberContainer">
+        android:layout_below="@+id/phoneNumberContainer"
+        android:layout_marginVertical="10dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
             android:layout_marginBottom="8dp"
             android:text="@string/password_label"
             android:textAllCaps="true"
             android:textColor="@color/white"
-            android:textSize="17dp"
-            android:layout_marginLeft="20dp"/>
+            android:textSize="17dp" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/paswordInputText"
             android:layout_width="match_parent"
             android:layout_height="42dp"
-            app:hintEnabled="false"
             android:layout_marginHorizontal="20dp"
             app:boxStrokeWidth="0dp"
             app:boxStrokeWidthFocused="0dp"
-            app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/hint_text_color"
             app:endIconMode="password_toggle"
-            android:id="@+id/paswordInputText"
-            >
+            app:hintEnabled="false"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/hint_text_color">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                app:hintEnabled="false"
-                android:paddingTop="16dp"
-                android:textColor="@color/white"
                 android:background="@drawable/inputtextfileoutline"
                 android:inputType="textPassword"
-                >
-            </com.google.android.material.textfield.TextInputEditText>
+                android:paddingTop="16dp"
+                android:textColor="@color/white"
+                app:hintEnabled="false"></com.google.android.material.textfield.TextInputEditText>
 
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/passwordContainer"
@@ -118,9 +115,10 @@
         android:padding="10dp"
         android:text="@string/signin_label"
         android:textColor="@color/primary_color"
+        app:cornerRadius="10dp"
         android:textSize="17dp">
 
-    </Button>
+    </com.google.android.material.button.MaterialButton>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -133,7 +131,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginVertical="10dp"
             android:text="@string/create_account_label"
             android:textAllCaps="true"
             android:textColor="@color/primary_color"
@@ -141,44 +139,17 @@
 
         </TextView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            app:cornerRadius="10dp"
+            android:id="@+id/signupbtn"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
-            android:id="@+id/signupbtn"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="20dp"
             android:layout_marginVertical="10dp"
             android:backgroundTint="@color/white"
             android:text="@string/sign_up_label"
-            android:textColor="@color/hint_text_color"></Button>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OR"
-            android:textColor="@color/primary_color"
-            android:textSize="14dp"></TextView>
-
-        <Button
-            android:layout_width="270dp"
-            android:layout_height="50dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginVertical="10dp"
-            android:backgroundTint="@color/facebook_color"
-            android:text="@string/sign_up_fb_label"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_facebook"></Button>
-
-        <Button
-            android:layout_width="270dp"
-            android:layout_height="50dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/google_color"
-            android:text="@string/sign_up_google_label"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_google"></Button>
-
+            android:textColor="@color/hint_text_color"></com.google.android.material.button.MaterialButton>
     </LinearLayout>
 
 </RelativeLayout>
