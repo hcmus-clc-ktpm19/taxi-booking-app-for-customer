@@ -115,8 +115,9 @@
         android:padding="10dp"
         android:text="@string/signin_label"
         android:textColor="@color/primary_color"
-        app:cornerRadius="10dp"
-        android:textSize="17dp">
+        android:id="@+id/signinbtn"
+        android:textSize="17dp"
+        app:cornerRadius="10dp">
 
     </com.google.android.material.button.MaterialButton>
 
