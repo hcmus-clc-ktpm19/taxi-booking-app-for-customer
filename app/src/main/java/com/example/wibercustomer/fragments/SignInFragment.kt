@@ -21,7 +21,7 @@ class SignInFragment : Fragment() {
     ): View? {
         loginviewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
 
-        val root = inflater.inflate(R.layout.fragment_log_in, container, false)
+        val root = inflater.inflate(R.layout.fragment_sign_in, container, false)
 
         val phoneNumberTextField = root.findViewById<TextInputLayout>(R.id.phoneNumberInputText)
         val passwordTextField = root.findViewById<TextInputLayout>(R.id.paswordInputText)
@@ -38,6 +38,14 @@ class SignInFragment : Fragment() {
         signUpbtn.setOnClickListener {
             fragmentManager?.beginTransaction()
                 ?.replace(R.id.fragment_main_container, SignUpFragment())
+                ?.addToBackStack("Already has an account")
+                ?.commit()
+        }
+
+        val signInbtn = root.findViewById<Button>(R.id.signinbtn)
+        signInbtn.setOnClickListener {
+            fragmentManager?.beginTransaction()
+                ?.replace(R.id.fragment_main_container, HomeFragment())
                 ?.addToBackStack("Already has an account")
                 ?.commit()
         }

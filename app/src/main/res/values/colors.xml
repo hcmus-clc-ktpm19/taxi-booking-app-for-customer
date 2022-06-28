@@ -12,4 +12,5 @@
     <color name="hint_text_color">#545C9B</color>
     <color name="facebook_color">#324A97</color>
     <color name="google_color">#F47070</color>
+    <color name="red_icon">#F40505</color>
 </resources>
