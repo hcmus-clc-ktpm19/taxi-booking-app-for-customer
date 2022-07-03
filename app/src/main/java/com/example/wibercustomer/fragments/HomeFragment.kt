@@ -1,29 +1,33 @@
 package com.example.wibercustomer.fragments
 
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.preference.PreferenceManager
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import com.example.wibercustomer.BuildConfig
+import android.widget.Button
 import com.example.wibercustomer.R
+import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.viewmodels.HomeViewModel
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONObject
 import org.osmdroid.api.IMapController
-import org.osmdroid.config.Configuration
 
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.*
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import kotlin.collections.ArrayList
 
 
 class HomeFragment : Fragment() {
@@ -48,6 +52,10 @@ class HomeFragment : Fragment() {
             arrivingEdt.editText?.setText(it)
         }
 
+        val testTesting = root.findViewById<Button>(R.id.callApi)
+        //106.660172,10.762622&end=106.7,10.762622
+        val startPoint = GeoPoint(10.762622, 106.660172)
+        val endPoint = GeoPoint(10.762622, 106.7)
 
         //here set map
         map = root.findViewById(R.id.mapView);
@@ -61,7 +69,7 @@ class HomeFragment : Fragment() {
 
         mapController.setZoom(19)
 
-        val startPoint = GeoPoint(10.762622, 106.660172)
+
 
         mapController.setCenter(startPoint)
         //create a start marker on map
@@ -73,23 +81,52 @@ class HomeFragment : Fragment() {
         startMarker.setIcon(resources.getDrawable(R.drawable.ic_location))
         startMarker.setInfoWindow(null)
 
-        //create a list of point to draw a connection line between points
-        val geoPoints = ArrayList<GeoPoint>();
-        //add your points here
-        val line = Polyline();
-        geoPoints.add(startPoint) //Call API (openrouteservice) to get list of point to draw line from start point to destination point
-        geoPoints.add(GeoPoint(10.862632, 106.660572))
-        geoPoints.add(GeoPoint(10.642, 106.660872))
-        geoPoints.add(GeoPoint(10.2652, 106.667872))
-        line.color = Color.parseColor("#F40505")
-        line.setPoints(geoPoints);
-
         //need to add line and marker to map
-        map.overlays.add(line);
+        testTesting.setOnClickListener {
+            RouteService.routeService.getPolyline("5b3ce3597851110001cf62488405514894ed4132af5ce11377c3a573",
+                "${startPoint.longitude},${startPoint.latitude}",
+                        "${endPoint.longitude},${endPoint.latitude}")
+                .enqueue(object : Callback<ResponseBody>{
+                    override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                        Log.e("error Api", t.toString())
+                    }
+
+                    override fun onResponse(
+                        call: Call<ResponseBody>?,
+                        response: Response<ResponseBody>?
+                    ) {
+                        val gson = GsonBuilder().create()
+                        val dataFromApi = response?.body()?.string()
+                        val elementObj = JSONObject(dataFromApi)
+                        val lineString = elementObj.getJSONArray("features")
+                            .getJSONObject(0)
+                            .getJSONObject("geometry")
+                            .getJSONArray("coordinates")
+                        val geoPoints = ArrayList<GeoPoint>();
+                        (0 until lineString.length()).forEach{
+                            val iteratorCoordinate = lineString.get(it) as JSONArray
+                            geoPoints.add(GeoPoint(iteratorCoordinate[1] as Double, iteratorCoordinate[0] as Double))
+                        }
+
+                        //add your points here
+                        val line = Polyline();
+                        Log.i("points", geoPoints.toString())
+                        line.color = Color.parseColor("#F40505")
+                        line.setPoints(geoPoints);
+
+                        map.overlays.add(line);
+
+                        map.invalidate()
+                    }
+                })
+
+        }
 
         map.overlays.add(startMarker)
 
         map.invalidate()
+
+
 
         return root
     }
