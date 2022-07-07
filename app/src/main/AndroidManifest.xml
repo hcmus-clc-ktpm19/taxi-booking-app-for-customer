@@ -17,6 +17,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WiberCustomer">
         <activity
+            android:name=".TestActivity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
