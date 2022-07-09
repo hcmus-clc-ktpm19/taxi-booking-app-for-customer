@@ -1,80 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.HomeFragment">
 
-    <com.google.android.material.button.MaterialButton
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textField"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/callApi"
-        android:text="Testing Api">
-
-    </com.google.android.material.button.MaterialButton>
-
-    <org.osmdroid.views.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></org.osmdroid.views.MapView>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        app:hintEnabled="false"
-        android:layout_marginHorizontal="40dp"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="0dp"
-        android:id="@+id/startingInputText"
-        app:boxCornerRadiusTopStart="15dp"
-        app:boxCornerRadiusTopEnd="15dp"
-        app:boxCornerRadiusBottomStart="15dp"
-        android:layout_marginVertical="20dp"
-        app:startIconDrawable="@drawable/ic_location"
-        app:startIconTint="@color/red_icon"
-        app:boxCornerRadiusBottomEnd="15dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="60dp"
+        android:hint="Destination"
         app:boxBackgroundColor="@color/white"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-            app:hintEnabled="false"
-            android:paddingTop="10dp"
-            android:textColor="@color/black"
-            >
-        </com.google.android.material.textfield.TextInputEditText>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        app:hintEnabled="false"
-        android:layout_marginHorizontal="40dp"
-        android:layout_below="@+id/startingInputText"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="0dp"
-        android:id="@+id/arrivingInputText"
-        app:boxCornerRadiusTopStart="15dp"
-        app:boxCornerRadiusTopEnd="15dp"
-        app:boxCornerRadiusBottomStart="15dp"
-        app:boxCornerRadiusBottomEnd="15dp"
-        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:startIconDrawable="@drawable/ic_arriving"
-        app:startIconTint="@color/red_icon"
-        >
+        app:startIconTint="@color/red_icon">
+
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
-
-            android:layout_height="match_parent"
-            app:hintEnabled="false"
-            android:paddingTop="10dp"
-            android:textColor="@color/black"
-            >
-        </com.google.android.material.textfield.TextInputEditText>
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

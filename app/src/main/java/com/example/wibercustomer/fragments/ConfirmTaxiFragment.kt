@@ -1,50 +1,35 @@
 package com.example.wibercustomer.fragments
 
-import android.app.AlertDialog
-import android.graphics.Color
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
-import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.databinding.FragmentConfirmTaxiBinding
 import com.example.wibercustomer.viewmodels.ConfirmTaxiViewModel
-import com.example.wibercustomer.viewmodels.HomeViewModel
-import com.google.android.material.textfield.TextInputLayout
-import com.google.gson.GsonBuilder
-import com.stripe.android.paymentsheet.PaymentSheet
-import com.stripe.android.paymentsheet.PaymentSheetResult
-import okhttp3.ResponseBody
-import org.json.JSONArray
-import org.json.JSONObject
-import org.osmdroid.api.IMapController
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polyline
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 
-class ConfirmTaxiFragment: Fragment() {
+class ConfirmTaxiFragment : Fragment(), OnMapReadyCallback {
     private lateinit var confirmTaxiViewModel: ConfirmTaxiViewModel
-    private lateinit var map: MapView
+    private lateinit var mMap: GoogleMap
     private lateinit var binding: FragmentConfirmTaxiBinding
-    companion object {
-        private const val TAG = "ConfirmTaxiFragment"
-        private const val BACKEND_URL = "http://10.0.2.2:4242"
-    }
-    private lateinit var paymentIntentClientSecret: String
-    private lateinit var paymentSheet: PaymentSheet
-
     private lateinit var payButton: Button
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,92 +39,68 @@ class ConfirmTaxiFragment: Fragment() {
         val root = inflater.inflate(R.layout.fragment_confirm_taxi, container, false)
 
         binding = FragmentConfirmTaxiBinding.bind(root)
-//        val startingEdt = root.findViewById<TextInputLayout>(R.id.startingInputText)
-//        val arrivingEdt = root.findViewById<TextInputLayout>(R.id.arrivingInputText)
-        val startingEdt = binding.startingInputText
-        val arrivingEdt = binding.arrivingInputText
+        val arrivingEdt = binding.arrivingEditText
 
-        confirmTaxiViewModel.startingText.observe(viewLifecycleOwner){
-            startingEdt.editText?.setText(it)
-        }
-
-        confirmTaxiViewModel.arrivingText.observe(viewLifecycleOwner){
-            arrivingEdt.editText?.setText(it)
-        }
+//        confirmTaxiViewModel.startingText.observe(viewLifecycleOwner) {
+//            startingEdt.editText?.setText(it)
+//        }
+//
+//        confirmTaxiViewModel.arrivingText.observe(viewLifecycleOwner) {
+//            arrivingEdt.editText?.setText(it)
+//        }
         payButton = binding.payButton
-        payButton.setOnClickListener(::onPayClicked)
-        payButton.isEnabled = true
 
-        paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
-
-
-        val testTesting = root.findViewById<Button>(R.id.callApi)
-        //106.660172,10.762622&end=106.7,10.762622
-        val startPoint = GeoPoint(10.762622, 106.660172)
-        val endPoint = GeoPoint(10.762622, 106.7)
-
-
-        //here set map
-        map = binding.mapView;
-
-        map.setUseDataConnection(true)
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        //set map controller (zoom, map center)
-        val mapController: IMapController
-
-        mapController = map.getController()
-
-        mapController.setZoom(19)
-
-
-
-        mapController.setCenter(startPoint)
-        //create a start marker on map
-        val startMarker = Marker(map)
-
-        startMarker.position = startPoint
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-
-        startMarker.setIcon(resources.getDrawable(R.drawable.ic_location))
-        startMarker.setInfoWindow(null)
-
-        map.overlays.add(startMarker)
-
-        map.invalidate()
+        // init map fragment
+        val supportMapFragment: SupportMapFragment =
+            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        // async map
+        supportMapFragment.getMapAsync(this)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
 
         return root
     }
 
-    private fun showAlert(title: String, message: String? = null) {
-        val builder = AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-            builder.setPositiveButton("Ok", null)
-            builder.create().show()
-    }
-    private fun showToast(message: String) {
-        Toast.makeText(context,  message, Toast.LENGTH_LONG).show()
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
 
-    }
-
-    private fun onPayClicked(view: View) {
-        val configuration = PaymentSheet.Configuration("Example, Inc.")
-
-        // Present Payment Sheet
-        paymentIntentClientSecret = "ch_3LIa7JG4i8Ax0wzr1femUhKd";
-        paymentSheet.presentWithPaymentIntent(paymentIntentClientSecret, configuration)
+        // Add a marker at current user location and move the camera
+        mMap.uiSettings.isZoomControlsEnabled = false
+        setUpMap()
     }
 
-    private fun onPaymentSheetResult(paymentResult: PaymentSheetResult) {
-        when (paymentResult) {
-            is PaymentSheetResult.Completed -> {
-                showToast("Payment complete!")
-            }
-            is PaymentSheetResult.Canceled -> {
-                Log.i(TAG, "Payment canceled!")
-            }
-            is PaymentSheetResult.Failed -> {
-                showAlert("Payment failed", paymentResult.error.localizedMessage)
+    @SuppressLint("MissingPermission")
+    private fun setUpMap() {
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED){
+            Log.i("info", "permission denied")
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            Log.i("info", "permission granted")
+            mMap.isMyLocationEnabled = true
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    Log.i("info", "current location: $currentLatLng")
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    mMap.addMarker(
+                        com.google.android.gms.maps.model.MarkerOptions()
+                            .position(currentLatLng)
+                            .title("You are here")
+                    )
+                }
             }
         }
     }

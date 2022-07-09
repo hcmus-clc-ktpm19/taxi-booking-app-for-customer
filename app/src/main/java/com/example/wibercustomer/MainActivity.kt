@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.wibercustomer.fragments.HomeFragment
 import com.example.wibercustomer.fragments.SignInFragment
 import org.osmdroid.config.Configuration
 
@@ -20,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         Configuration.getInstance().setUserAgentValue(getPackageName());
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_main_container,SignInFragment())
+            .replace(R.id.fragment_main_container,HomeFragment())
             .commit();
 
         supportActionBar?.hide()
