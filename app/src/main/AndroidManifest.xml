@@ -17,6 +17,12 @@
         android:theme="@style/Theme.WiberCustomer"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.HistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity2"
             android:exported="false" />
         <activity
@@ -46,7 +52,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>

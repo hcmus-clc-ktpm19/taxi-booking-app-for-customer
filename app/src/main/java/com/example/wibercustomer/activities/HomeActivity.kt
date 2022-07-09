@@ -50,10 +50,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     val intent = Intent(this, HomeActivity::class.java)
                     startActivity(intent)
                 }
-//                R.id.nav_profile -> {
-//                    val intent = Intent(this, ProfileActivity::class.java)
-//                    startActivity(intent)
-//                }
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
+                }
             }
             drawerLayout.closeDrawers()
             true

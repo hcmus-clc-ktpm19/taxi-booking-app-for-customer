@@ -22,7 +22,7 @@ class SigninActivity : AppCompatActivity() {
         loginviewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
 
         loginviewModel.phoneNumberText.observe(this){
-            binding.phoneNumberInputText.editText?.setText(it)
+            binding.phoneNumberInputLayout.editText?.setText(it)
         }
 
 
