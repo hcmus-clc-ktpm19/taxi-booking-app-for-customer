@@ -17,6 +17,9 @@
         android:theme="@style/Theme.WiberCustomer"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
+        <activity
             android:name=".activities.ConfirmTaxi"
             android:exported="true" />
         <activity
@@ -24,7 +27,7 @@
             android:exported="false" />
         <activity
             android:name=".activities.HomeActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".activities.SigninActivity"
             android:exported="true"
@@ -43,7 +46,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
+            android:exported="true"></activity>
     </application>
 
 </manifest>

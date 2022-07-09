@@ -1,10 +1,13 @@
 package com.example.wibercustomer.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.lifecycle.ViewModelProvider
+import com.example.wibercustomer.MainActivity
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.viewmodels.HomeViewModel
@@ -22,21 +25,49 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
+        var toolbar = binding.toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Home"
+        var drawerLayout = binding.drawerLayout
+        var navigationView = binding.navView
+        var actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolbar,
+            R.string.openNavDrawer,
+            R.string.closeNavDrawer
+        )
+        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                }
+//                R.id.nav_profile -> {
+//                    val intent = Intent(this, ProfileActivity::class.java)
+//                    startActivity(intent)
+//                }
+            }
+            drawerLayout.closeDrawers()
+            true
+        }
+
         //map
         val supportMapFragment: SupportMapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         // async map
+        Log.i("info", "async map")
         supportMapFragment.getMapAsync(this)
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this)
+
     }
 
     @SuppressLint("MissingPermission")
