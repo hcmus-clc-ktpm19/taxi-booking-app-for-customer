@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.wibercustomer"
-        minSdk 31
+        minSdk 29
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -35,6 +35,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -75,5 +78,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.1.0'
 
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    //
 
 }
