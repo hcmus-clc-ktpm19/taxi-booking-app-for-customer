@@ -18,13 +18,13 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".activities.ConfirmTaxi"
-            android:exported="false" />
-        <activity
-            android:name=".activities.HomeActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".activities.SignupActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.HomeActivity"
+            android:exported="true"/>
         <activity
             android:name=".activities.SigninActivity"
             android:exported="true"

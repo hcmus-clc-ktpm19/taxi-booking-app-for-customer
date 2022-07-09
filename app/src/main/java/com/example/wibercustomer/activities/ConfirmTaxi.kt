@@ -16,10 +16,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 
-class ConfirmTaxi : AppCompatActivity() {
+class ConfirmTaxi : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var confirmTaxiViewModel: ConfirmTaxiViewModel
     private lateinit var mMap: GoogleMap
@@ -34,7 +35,7 @@ class ConfirmTaxi : AppCompatActivity() {
         binding = ActivityConfirmTaxiBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        confirmTaxiViewModel = ViewModelProvider(this).get(ConfirmTaxiViewModel::class.java)
+        confirmTaxiViewModel = ViewModelProvider(this)[ConfirmTaxiViewModel::class.java]
         val arrivingEdt = binding.arrivingEditText
 
 //        confirmTaxiViewModel.startingText.observe(viewLifecycleOwner) {
@@ -47,47 +48,46 @@ class ConfirmTaxi : AppCompatActivity() {
         payButton = binding.payButton
 
         // init map fragment
-//        val supportMapFragment: SupportMapFragment =
-//            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-//        // async map
-//        supportMapFragment.getMapAsync(this)
-//        fusedLocationProviderClient =
-//            LocationServices.getFusedLocationProviderClient(this)
+        val supportMapFragment: SupportMapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        // async map
+        supportMapFragment.getMapAsync(this)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(this)
 
     }
 
-//    override fun onMapReady(googleMap: GoogleMap) {
-//        mMap = googleMap
-//
-//        // Add a marker at current user location and move the camera
-//        mMap.uiSettings.isZoomControlsEnabled = false
-//        setUpMap()
-//    }
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
 
-//    @SuppressLint("MissingPermission")
-//    private fun setUpMap() {
-//        val permissionCheck = ContextCompat.checkSelfPermission(
-//            this,
-//            Manifest.permission.ACCESS_FINE_LOCATION
-//        )
-//        if (permissionCheck != PackageManager.PERMISSION_GRANTED){
-//            Log.i("info", "permission denied")
-//            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-//        } else {
-//            Log.i("info", "permission granted")
-//            mMap.isMyLocationEnabled = true
-//            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-//                if (location != null) {
-//                    val currentLatLng = LatLng(location.latitude, location.longitude)
-//                    Log.i("info", "current location: $currentLatLng")
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
-//                    mMap.addMarker(
-//                        com.google.android.gms.maps.model.MarkerOptions()
-//                            .position(currentLatLng)
-//                            .title("You are here")
-//                    )
-//                }
-//            }
-//        }
-//    }
+        // Add a marker at current user location and move the camera
+        mMap.uiSettings.isZoomControlsEnabled = false
+        setUpMap()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setUpMap() {
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED){
+            Log.i("info", "permission denied")
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            Log.i("info", "permission granted")
+            mMap.isMyLocationEnabled = true
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    Log.i("info", "current location: $currentLatLng")
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    mMap.addMarker(
+                        com.google.android.gms.maps.model.MarkerOptions()
+                            .position(currentLatLng)
+                            .title("You are here")
+                    )
+                }
+            }
+        }
+    }
 }
