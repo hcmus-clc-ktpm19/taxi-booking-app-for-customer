@@ -27,9 +27,12 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="confirm_taxi">Confirm Taxi</string>
+    <string name="confirm">Confirm</string>
     <string name="menu_home">Home</string>
     <string name="profile">Profile</string>
     <string name="history">History</string>
     <string name="closeNavDrawer">Close Navigation Drawer</string>
     <string name="openNavDrawer">Open Navigation Drawer</string>
+    <string name="choose_payment_method">Select Payment</string>
+    <string name="enter_promo_code">Promo Code</string>
 </resources>
