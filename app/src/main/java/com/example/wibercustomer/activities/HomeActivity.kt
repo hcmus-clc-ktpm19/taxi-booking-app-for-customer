@@ -46,13 +46,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         actionBarDrawerToggle.syncState()
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
                 R.id.nav_profile -> {
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
+                }
+                R.id.nav_history -> {
+                    startActivity(Intent(this,HistoryActivity::class.java))
                 }
             }
             drawerLayout.closeDrawers()

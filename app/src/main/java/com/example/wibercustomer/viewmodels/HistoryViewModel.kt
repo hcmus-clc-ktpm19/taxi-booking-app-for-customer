@@ -7,7 +7,9 @@ import com.example.wibercustomer.models.History
 
 class HistoryViewModel : ViewModel() {
 
-    private val _historyList = MutableLiveData<List<History>>()
+    private val _historyList = MutableLiveData<List<History>>().apply {
+        value = ArrayList<History>()
+    }
 
     val historyList : LiveData<List<History>> = _historyList
 

@@ -3,6 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="150dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/inputtextfileoutline"
+    android:layout_marginVertical="3dp"
+    android:layout_marginHorizontal="3dp"
     android:orientation="horizontal">
 
     <LinearLayout

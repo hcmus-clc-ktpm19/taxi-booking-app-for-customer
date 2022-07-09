@@ -4,9 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.ProfileActivity">
+    tools:context=".activities.ProfileActivity"
+    android:id="@+id/drawer_layout">
+
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.WiberCustomer.AppBarOverlay"
+            >
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:titleTextColor="@color/white"
+                android:background="@color/primary"
+                app:navigationIcon="@drawable/ic_baseline_menu_24"
+                app:popupTheme="@style/Theme.WiberCustomer.PopupOverlay" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_height="match_parent">
 
         <com.mikhaellopez.circularimageview.CircularImageView
@@ -74,33 +101,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_below="@+id/phone_number_input_layout"
-            android:id="@+id/address_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:expandedHintEnabled="false"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="15dp"
-            app:boxStrokeColor="@color/primary_color"
-            android:hint="@string/default_address"
-            app:boxCornerRadiusTopStart="15dp"
-            app:boxCornerRadiusTopEnd="15dp"
-            app:boxCornerRadiusBottomStart="15dp"
-            app:boxCornerRadiusBottomEnd="15dp"
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-
-                android:layout_height="wrap_content"
-                android:text="1234"
-                android:textColor="@color/black">
-
-            </com.google.android.material.textfield.TextInputEditText>
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_below="@+id/address_input_layout"
             android:id="@+id/new_password_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -139,5 +139,14 @@
             android:textSize="22dp" />
 
     </RelativeLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_navigation"
+        app:menu="@menu/activity_homepage_drawer" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

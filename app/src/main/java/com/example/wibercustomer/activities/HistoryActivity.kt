@@ -1,7 +1,9 @@
 package com.example.wibercustomer.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +27,35 @@ class HistoryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+
+        var toolbar = binding.toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Home"
+        var drawerLayout = binding.drawerLayout
+        var navigationView = binding.navView
+        var actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolbar,
+            R.string.openNavDrawer,
+            R.string.closeNavDrawer
+        )
+        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+            drawerLayout.closeDrawers()
+            true
+        }
+
+        if (historyViewModel.historyList.value!!.isEmpty())
+            historyViewModel.initHistoryData()
 
         binding.historyRecycleview.layoutManager = LinearLayoutManager(this)
 

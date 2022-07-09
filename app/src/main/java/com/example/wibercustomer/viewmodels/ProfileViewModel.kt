@@ -12,11 +12,6 @@ class ProfileViewModel : ViewModel() {
 
     val nameText : LiveData<String> = _nameText
 
-    private val _defaultAddressText = MutableLiveData<String>().apply {
-        value = "96/69 HCMUS"
-    }
-
-    val defaultAddressText : LiveData<String> = _defaultAddressText
 
     private val _phoneNumberText = MutableLiveData<String>().apply {
         value = "+84 888"
