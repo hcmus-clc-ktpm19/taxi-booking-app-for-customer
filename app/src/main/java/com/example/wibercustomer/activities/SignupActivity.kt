@@ -23,7 +23,7 @@ class SignupActivity : AppCompatActivity() {
         signUpviewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
 
         signUpviewModel.phoneNumberText.observe(this){
-            binding.phoneNumberInputText.editText?.setText(it)
+            binding.phoneNumberInputLayout.editText?.setText(it)
         }
 
         signUpviewModel.passwordText.observe(this){
