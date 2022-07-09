@@ -24,29 +24,5 @@ class HomeViewModel : ViewModel() {
     val arrivingText : LiveData<String> = _arrivingText
 
 
-    //chua biet dung viewmodel khuc nay lam sao se hoi chi PA
-
-//    private lateinit var mapConfig:MapView
-//    private lateinit var mapController: IMapController
-//    private lateinit var startPoint :GeoPoint
-//
-//    private val _mapView = MutableLiveData<MapView>().apply {
-//        value = mapConfig
-//    }
-//
-//    val mapView : LiveData<MapView> = _mapView
-//
-//    private fun initMap() {
-//        mapConfig.setUseDataConnection(true)
-//        mapConfig.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
-//        mapController = mapConfig.getController()
-//
-//        mapController.setZoom(15)
-//
-//        startPoint = GeoPoint(10.762622, 106.660172)
-//
-//        mapController.setCenter(startPoint)
-//
-//    }
 
 }

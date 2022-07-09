@@ -12,12 +12,6 @@ class SignUpViewModel : ViewModel() {
 
     val phoneNumberText : LiveData<String> = _phoneNumberText
 
-    private val _emailText = MutableLiveData<String>().apply {
-        value = "abc@gmail.com"
-    }
-
-    val emailText : LiveData<String> = _emailText
-
     private val _passwordText = MutableLiveData<String>().apply {
         value = "ThisIsPassWord"
     }
