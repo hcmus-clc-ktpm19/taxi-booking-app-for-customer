@@ -32,11 +32,11 @@
                 android:id="@+id/profile_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="84dp"
-                android:background="?android:attr/colorPrimary"
                 app:menu="@menu/top_app_bar"
+                app:titleTextColor="@color/white"
+                android:background="@color/primary"
                 app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-                app:title="Confirm Taxi"
-                app:titleTextColor="@color/white" />
+                app:title="Confirm Taxi" />
         </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -77,15 +77,17 @@
 
 
     <Button
-        android:id="@+id/pay_button"
+        android:id="@+id/confirm_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:text="@string/confirm_taxi"
         android:textSize="20sp"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

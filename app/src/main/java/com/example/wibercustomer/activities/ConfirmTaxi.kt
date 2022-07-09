@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -25,7 +26,7 @@ class ConfirmTaxi : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var confirmTaxiViewModel: ConfirmTaxiViewModel
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityConfirmTaxiBinding
-    private lateinit var payButton: Button
+    private lateinit var confirmButton: Button
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
@@ -45,7 +46,10 @@ class ConfirmTaxi : AppCompatActivity(), OnMapReadyCallback {
 //        confirmTaxiViewModel.arrivingText.observe(viewLifecycleOwner) {
 //            arrivingEdt.editText?.setText(it)
 //        }
-        payButton = binding.payButton
+        confirmButton = binding.confirmButton
+        confirmButton.setOnClickListener {
+            confirmTaxiViewModel.confirmTaxi(supportFragmentManager)
+        }
 
         // init map fragment
         val supportMapFragment: SupportMapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -55,6 +59,8 @@ class ConfirmTaxi : AppCompatActivity(), OnMapReadyCallback {
             LocationServices.getFusedLocationProviderClient(this)
 
     }
+
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
