@@ -13,6 +13,11 @@
             android:icon="@drawable/ic_baseline_person_24"
             android:title="@string/profile" />
         <item
+            android:id="@+id/nav_payment_method"
+            android:icon="@drawable/ic_baseline_payment_24"
+            android:title="@string/payment_method" />
+
+        <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_baseline_history_24"
             android:title="@string/history" />

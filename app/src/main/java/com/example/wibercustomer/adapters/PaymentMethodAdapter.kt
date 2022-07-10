@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wibercustomer.R
 import com.example.wibercustomer.models.Payment
 
-class PaymentItemAdapter(private val payments:ArrayList<Payment>?): RecyclerView.Adapter<PaymentItemAdapter.ViewHolder>() {
+class PaymentMethodAdapter(private val payments:ArrayList<Payment>?): RecyclerView.Adapter<PaymentMethodAdapter.ViewHolder>() {
     inner class ViewHolder(listItemView: View): RecyclerView.ViewHolder(listItemView){
         val nameTextView = listItemView.findViewById(R.id.Payment_Username_TV) as TextView
         val cardNumberTextView = listItemView.findViewById(R.id.Payment_CardNumber_TV) as TextView
