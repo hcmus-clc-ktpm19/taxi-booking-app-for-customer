@@ -36,13 +36,13 @@ class HistoryActivity : AppCompatActivity() {
         if (historyViewModel.historyList.value!!.isEmpty())
             historyViewModel.initHistoryData()
 
-        binding.historyRecycleview.layoutManager = LinearLayoutManager(this)
+        binding.historyRecyclerview.layoutManager = LinearLayoutManager(this)
 
         val listUser = historyViewModel.historyList.value
 
         historyAdapter = HistoryAdapter(listUser!!)
 
-        binding.historyRecycleview.adapter = historyAdapter
+        binding.historyRecyclerview.adapter = historyAdapter
 
     }
 }

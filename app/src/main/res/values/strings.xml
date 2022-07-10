@@ -42,4 +42,5 @@
     <string name="submit">Submit</string>
     <string name="add_new_payment_method">Add New Payment Method</string>
     <string name="payment_method">Payment Method</string>
+    <string name="total_balance">Total Balance</string>
 </resources>
