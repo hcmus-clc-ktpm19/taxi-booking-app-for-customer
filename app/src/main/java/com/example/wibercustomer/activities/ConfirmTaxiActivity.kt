@@ -20,8 +20,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class ConfirmTaxi : AppCompatActivity(), OnMapReadyCallback {
+class ConfirmTaxiActivity : AppCompatActivity(), OnMapReadyCallback  {
 
     private lateinit var confirmTaxiViewModel: ConfirmTaxiViewModel
     private lateinit var mMap: GoogleMap
