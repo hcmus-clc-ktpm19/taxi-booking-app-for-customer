@@ -1,12 +1,16 @@
 package com.example.wibercustomer.dialog
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wibercustomer.R
+import com.example.wibercustomer.activities.HomeActivity
+import com.example.wibercustomer.activities.SuccessConfirmActivity
 import com.example.wibercustomer.adapters.PaymentItemAdapter
 import com.example.wibercustomer.models.Payment
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -38,6 +42,15 @@ class ChoosePaymentMethodDialog : BottomSheetDialogFragment() {
         paymentAdapter = PaymentItemAdapter(paymentLists)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = paymentAdapter
+
+        val btnConfirm = view.findViewById<Button>(R.id.confirm_button)
+        btnConfirm.setOnClickListener {
+            val intent = Intent(context, SuccessConfirmActivity::class.java)
+            startActivity(intent)
+//            this.startActivity(Intent(activity, SuccessConfirmActivity::class.java))
+            dismiss()
+        }
+//        this.startActivity(Intent(activity, SuccessConfirmActivity::class.java))
         return view
     }
 }

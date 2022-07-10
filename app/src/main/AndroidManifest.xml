@@ -17,16 +17,16 @@
         android:theme="@style/Theme.WiberCustomer"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.SuccessConfirmActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.HistoryActivity"
             android:exported="false" />
         <activity
             android:name=".activities.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity2"
-            android:exported="false" />
-        <activity
-            android:name=".activities.ConfirmTaxi"
+            android:name=".activities.ConfirmTaxiActivity"
             android:exported="true" />
         <activity
             android:name=".activities.SignupActivity"

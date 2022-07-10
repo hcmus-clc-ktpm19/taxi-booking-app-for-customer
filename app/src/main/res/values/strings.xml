@@ -35,4 +35,5 @@
     <string name="openNavDrawer">Open Navigation Drawer</string>
     <string name="choose_payment_method">Select Payment</string>
     <string name="enter_promo_code">Promo Code</string>
+    <string name="thank_you">Thank You \n For Your Confirmation!</string>
 </resources>
