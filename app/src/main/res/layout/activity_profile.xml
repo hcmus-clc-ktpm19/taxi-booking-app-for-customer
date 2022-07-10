@@ -24,7 +24,8 @@
                 android:layout_height="?attr/actionBarSize"
                 app:titleTextColor="@color/white"
                 android:background="@color/primary"
-                app:navigationIcon="@drawable/ic_baseline_menu_24"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+                app:title="Profile"
                 app:popupTheme="@style/Theme.WiberCustomer.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
