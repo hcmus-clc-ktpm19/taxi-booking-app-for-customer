@@ -28,30 +28,9 @@ class HistoryActivity : AppCompatActivity() {
 
         historyViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
 
-        var toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = "Home"
-        var drawerLayout = binding.drawerLayout
-        var navigationView = binding.navView
-        var actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolbar,
-            R.string.openNavDrawer,
-            R.string.closeNavDrawer
-        )
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-                R.id.nav_profile -> {
-                    val intent = Intent(this, ProfileActivity::class.java)
-                    startActivity(intent)
-                }
-            }
-            drawerLayout.closeDrawers()
-            true
+        setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
         }
 
         if (historyViewModel.historyList.value!!.isEmpty())

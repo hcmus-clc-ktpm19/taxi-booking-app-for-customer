@@ -21,29 +21,9 @@ class ProfileActivity : AppCompatActivity() {
 
         profileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
 
-        var toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = "Home"
-        var drawerLayout = binding.drawerLayout
-        var navigationView = binding.navView
-        var actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolbar,
-            R.string.openNavDrawer,
-            R.string.closeNavDrawer
-        )
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-                R.id.nav_history -> {
-                    startActivity(Intent(this,HistoryActivity::class.java))
-                }
-            }
-            drawerLayout.closeDrawers()
-            true
+        setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
         }
 
         profileViewModel.nameText.observe(this){
