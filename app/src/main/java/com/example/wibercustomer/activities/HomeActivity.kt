@@ -4,22 +4,24 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
-import android.location.LocationListener
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.wibercustomer.MainActivity
 import com.example.wibercustomer.R
+import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.viewmodels.HomeViewModel
-import com.example.wibercustomer.viewmodels.SignInViewModel
-import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -27,17 +29,22 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.RectangularBounds
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.gms.maps.model.PolylineOptions
+import com.google.gson.GsonBuilder
+import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONObject
+import org.osmdroid.util.GeoPoint
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.IOException
+
 import java.util.*
+
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var binding: ActivityHomeBinding
@@ -45,17 +52,16 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    internal var mGoogleApiClient : GoogleApiClient? = null
-    internal lateinit var destinatioLocation : Location
+    internal lateinit var destinatioLocation : LatLng
     internal var destinationLocationMarker : Marker? = null
-    internal lateinit var destinationLocationRequest : LocationRequest
+    private lateinit var  startLocation : LatLng
+    private var distance : Double = 0.0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
         var toolbar = binding.toolbar
@@ -99,23 +105,93 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback{
 
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this)
-        Places.initialize(getApplicationContext(), "AIzaSyBnJElLitt6oQ2cwCL4FGIgYlZFPn1UKPE");
-        val autoCompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+        binding.findButton.setOnClickListener {
+            val destination = binding.destinationInputLayout.editText!!.text
+            val coder = Geocoder(applicationContext)
+            try {
+                val adresses: ArrayList<Address> =
+                    coder.getFromLocationName(destination.toString(), 1) as ArrayList<Address>
+                if (!adresses.isEmpty()){
+                    val location: Address = adresses.get(0)
+                    destinatioLocation = LatLng(location.latitude, location.longitude)
 
-        // Set up a PlaceSelectionListener to handle the response.
-        autoCompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
-                val destionation = place.latLng
-                if (destinationLocationMarker!= null)
-                    destinationLocationMarker!!.remove()
-                destinationLocationMarker = mMap.addMarker(MarkerOptions().position(destionation))
+                    if (destinationLocationMarker != null)
+                    {
+                        mMap.clear()
+                        mMap.addMarker(
+                            com.google.android.gms.maps.model.MarkerOptions()
+                                .position(startLocation)
+                                .title("You are here")
+                        )
+                        destinationLocationMarker!!.remove()
+                    }
+                    //Put marker on map on that LatLng
+                    destinationLocationMarker = mMap.addMarker(
+                        MarkerOptions().position(destinatioLocation).title("Destination")
+                    )
+
+                    //Animate and Zoon on that map location
+
+                    //Animate and Zoon on that map location
+                    RouteService.routeService.getPolyline("5b3ce3597851110001cf62488405514894ed4132af5ce11377c3a573",
+                        "${startLocation.longitude},${startLocation.latitude}",
+                        "${destinatioLocation.longitude},${destinatioLocation.latitude}")
+                        .enqueue(object : Callback<ResponseBody> {
+                            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                                Log.e("error Api", t.toString())
+                            }
+
+                            override fun onResponse(
+                                call: Call<ResponseBody>?,
+                                response: Response<ResponseBody>?
+                            ) {
+                                val gson = GsonBuilder().create()
+                                val dataFromApi = response?.body()?.string()
+                                val elementObj = JSONObject(dataFromApi)
+                                val lineString = elementObj.getJSONArray("features")
+                                    .getJSONObject(0)
+                                    .getJSONObject("geometry")
+                                    .getJSONArray("coordinates")
+                                val distanceAPI = (elementObj.getJSONArray("features")
+                                    .getJSONObject(0)
+                                    .getJSONObject("properties")
+                                    .getJSONArray("segments")
+                                    .getJSONObject(0)
+                                    .get("distance"))
+                                distance = distanceAPI as Double
+                                Toast.makeText(applicationContext,"Distance: ${distance}m" , Toast.LENGTH_SHORT).show()
+                                val geoPoints = ArrayList<LatLng>();
+                                (0 until lineString.length()).forEach{
+                                    val iteratorCoordinate = lineString.get(it) as JSONArray
+                                    geoPoints.add(LatLng(iteratorCoordinate[1] as Double, iteratorCoordinate[0] as Double))
+                                }
+
+                                //add your points here
+                                var lineoption = PolylineOptions()
+                                lineoption.addAll(geoPoints)
+                                lineoption.width(15F)
+                                lineoption.color(Color.BLUE)
+                                lineoption.geodesic(true)
+                                mMap.addPolyline(lineoption)
+                            }
+                        })
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                }
             }
-
-            override fun onError(status: Status) {
-                Log.i("An loi", "An error occurred: $status")
+            catch(e : IOException) {
+                e.printStackTrace();
             }
-        })
+        }
+    }
 
+
+    private fun getDirectionURL(origin:LatLng, dest:LatLng, secret: String) : String{
+        return "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}" +
+                "&destination=${dest.latitude},${dest.longitude}" +
+                "&sensor=false" +
+                "&mode=driving" +
+                "&key=$secret"
     }
 
     @SuppressLint("MissingPermission")
@@ -124,60 +200,30 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback{
 
         // Add a marker at current user location and move the camera
         mMap.uiSettings.isZoomControlsEnabled = false
-        mMap.isMyLocationEnabled = true
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                Log.i("info", "current location: $currentLatLng")
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
-                mMap.addMarker(
-                        MarkerOptions()
-                        .position(currentLatLng)
-                        .title("You are here")
-                )
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED){
+            Log.i("info", "permission denied")
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION), 1)
+        } else {
+            Log.i("info", "permission granted")
+            mMap.isMyLocationEnabled = true
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    startLocation = LatLng(location.latitude, location.longitude)
+                    Log.i("info", "current location: $currentLatLng")
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    mMap.addMarker(
+                        com.google.android.gms.maps.model.MarkerOptions()
+                            .position(currentLatLng)
+                            .title("You are here")
+                    )
+                }
             }
         }
     }
-
-//    protected fun buildGoogleApiClient(){
-//        mGoogleApiClient = GoogleApiClient.Builder(this)
-//            .addConnectionCallbacks(this)
-//            .addOnConnectionFailedListener(this)
-//            .addApi(LocationServices.API).build()
-//        mGoogleApiClient!!.connect()
-//    }
-//
-//    override fun onLocationChanged(p0: Location) {
-//        destinatioLocation = p0
-//        if (destinationLocationMarker != null)
-//            destinationLocationMarker!!.remove()
-//
-//        val latLng = LatLng(p0.latitude, p0.longitude)
-//        val markerOption = MarkerOptions()
-//        markerOption.position(latLng)
-//        markerOption.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-//        destinationLocationMarker = mMap.addMarker(markerOption)
-//
-//        mMap!!.moveCamera(CameraUpdateFactory.newLatLng(latLng))
-//
-//    }
-//
-//    override fun onConnected(p0: Bundle?) {
-//        destinationLocationRequest = LocationRequest()
-//        destinationLocationRequest.interval = 1000
-//        destinationLocationRequest.fastestInterval = 1000
-//        destinationLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-//        {
-//
-//        }
-//    }
-//
-//    override fun onConnectionSuspended(p0: Int) {
-//        TODO("Not yet implemented")
-//    }
-//
-//    override fun onConnectionFailed(p0: ConnectionResult) {
-//        TODO("Not yet implemented")
-//    }
 }
