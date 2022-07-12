@@ -3,11 +3,10 @@ package com.example.wibercustomer.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
@@ -20,7 +19,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class ConfirmTaxiActivity : AppCompatActivity(), OnMapReadyCallback  {
 
@@ -77,7 +75,7 @@ class ConfirmTaxiActivity : AppCompatActivity(), OnMapReadyCallback  {
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED){
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             Log.i("info", "permission denied")
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         } else {

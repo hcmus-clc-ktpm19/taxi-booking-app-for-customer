@@ -1,22 +1,16 @@
 package com.example.wibercustomer.activities
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.wibercustomer.R
 import com.example.wibercustomer.adapters.HistoryAdapter
 import com.example.wibercustomer.databinding.ActivityHistoryBinding
-import com.example.wibercustomer.databinding.ActivityProfileBinding
-import com.example.wibercustomer.models.History
 import com.example.wibercustomer.viewmodels.HistoryViewModel
 
 class HistoryActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityHistoryBinding
+    private lateinit var binding: ActivityHistoryBinding
     private lateinit var historyViewModel: HistoryViewModel
     private lateinit var historyAdapter: HistoryAdapter
 

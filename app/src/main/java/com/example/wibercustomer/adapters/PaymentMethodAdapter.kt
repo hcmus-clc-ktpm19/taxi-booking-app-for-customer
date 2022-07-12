@@ -10,8 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wibercustomer.R
 import com.example.wibercustomer.models.Payment
 
-class PaymentMethodAdapter(private val payments:ArrayList<Payment>?): RecyclerView.Adapter<PaymentMethodAdapter.ViewHolder>() {
-    inner class ViewHolder(listItemView: View): RecyclerView.ViewHolder(listItemView){
+class PaymentMethodAdapter(private val payments: ArrayList<Payment>?) :
+    RecyclerView.Adapter<PaymentMethodAdapter.ViewHolder>() {
+    inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
         val nameTextView = listItemView.findViewById(R.id.Payment_Username_TV) as TextView
         val cardNumberTextView = listItemView.findViewById(R.id.Payment_CardNumber_TV) as TextView
         val dateCreateTextView = listItemView.findViewById(R.id.Payment_DateCreate_TV) as TextView
@@ -28,7 +29,10 @@ class PaymentMethodAdapter(private val payments:ArrayList<Payment>?): RecyclerVi
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val payment = payments!![position]
         holder.nameTextView.text = payment.name
-        ("**** **** **** " + payment.number.substring(15,19)).also { holder.cardNumberTextView.text = it }
+        ("**** **** **** " + payment.number.substring(
+            15,
+            19
+        )).also { holder.cardNumberTextView.text = it }
         val pattern = "dd-MM-yyyy"
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(payment.since)

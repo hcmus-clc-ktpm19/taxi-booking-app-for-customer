@@ -1,11 +1,8 @@
 package com.example.wibercustomer.activities
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityProfileBinding
 import com.example.wibercustomer.viewmodels.ProfileViewModel
 

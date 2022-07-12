@@ -1,20 +1,15 @@
 package com.example.wibercustomer.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
-import androidx.lifecycle.ViewModel
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.wibercustomer.R
 import com.example.wibercustomer.adapters.PaymentMethodAdapter
 import com.example.wibercustomer.databinding.ActivityPaymentMethodBinding
-import com.example.wibercustomer.models.Payment
 import com.example.wibercustomer.viewmodels.PaymentMethodViewModel
-import java.util.*
 
 class PaymentMethodActivity : AppCompatActivity() {
     private lateinit var viewModel: PaymentMethodViewModel
