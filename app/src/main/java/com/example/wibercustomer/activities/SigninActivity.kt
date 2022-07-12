@@ -1,15 +1,15 @@
 package com.example.wibercustomer.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.databinding.ActivitySigninBinding
 import com.example.wibercustomer.viewmodels.SignInViewModel
 
 class SigninActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivitySigninBinding
+    private lateinit var binding: ActivitySigninBinding
     private lateinit var loginviewModel: SignInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,12 +21,12 @@ class SigninActivity : AppCompatActivity() {
 
         loginviewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
 
-        loginviewModel.phoneNumberText.observe(this){
+        loginviewModel.phoneNumberText.observe(this) {
             binding.phoneNumberInputLayout.editText?.setText(it)
         }
 
 
-        loginviewModel.passwordText.observe(this){
+        loginviewModel.passwordText.observe(this) {
             binding.paswordInputText.editText?.setText(it)
         }
 

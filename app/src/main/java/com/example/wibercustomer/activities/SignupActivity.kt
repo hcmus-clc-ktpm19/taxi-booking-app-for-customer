@@ -1,17 +1,14 @@
 package com.example.wibercustomer.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import androidx.fragment.app.FragmentManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivitySignupBinding
 import com.example.wibercustomer.viewmodels.SignUpViewModel
 
 class SignupActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivitySignupBinding
+    private lateinit var binding: ActivitySignupBinding
     private lateinit var signUpviewModel: SignUpViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,15 +19,15 @@ class SignupActivity : AppCompatActivity() {
 
         signUpviewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
 
-        signUpviewModel.phoneNumberText.observe(this){
+        signUpviewModel.phoneNumberText.observe(this) {
             binding.phoneNumberInputLayout.editText?.setText(it)
         }
 
-        signUpviewModel.passwordText.observe(this){
+        signUpviewModel.passwordText.observe(this) {
             binding.paswordInputText.editText?.setText(it)
         }
 
-        signUpviewModel.confirmPasswordText.observe(this){
+        signUpviewModel.confirmPasswordText.observe(this) {
             binding.confirmPaswordInputText.editText?.setText(it)
         }
 

@@ -1,12 +1,12 @@
 package com.example.wibercustomer.activities
 
 import android.app.DatePickerDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityAddNewPaymentBinding
@@ -68,6 +68,7 @@ class AddNewPaymentActivity : AppCompatActivity() {
                 arg3: Int
             ) {
             }
+
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable) {
                 val initial = s.toString()
