@@ -3,11 +3,6 @@ package com.example.wibercustomer.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.wibercustomer.api.SignUpService
-import com.example.wibercustomer.models.Customer
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SignUpViewModel : ViewModel() {
 

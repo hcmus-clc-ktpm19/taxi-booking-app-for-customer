@@ -7,13 +7,13 @@ import androidx.lifecycle.ViewModel
 class SignInViewModel : ViewModel() {
 
     private val _phoneNumberText = MutableLiveData<String>().apply {
-        value = "+84 888"
+        value = ""
     }
 
     val phoneNumberText : LiveData<String> = _phoneNumberText
 
     private val _passwordText = MutableLiveData<String>().apply {
-        value = "ThisIsPassWord"
+        value = ""
     }
 
     val passwordText : LiveData<String> = _passwordText

@@ -5,7 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.wibercustomer.api.SignUpService
+import com.example.wibercustomer.api.AuthService
 import com.example.wibercustomer.databinding.ActivitySignupBinding
 import com.example.wibercustomer.models.Customer
 import com.example.wibercustomer.viewmodels.SignUpViewModel
@@ -53,18 +53,20 @@ class SignupActivity : AppCompatActivity() {
 
     fun registerNewCustomer(customer: Customer)
     {
-        SignUpService.signUpService.registerCustomer(customer).enqueue(object : Callback<ResponseBody> {
+        AuthService.authService.registerCustomer(customer).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 val dataFromResponse = response?.body()?.string()
                 try {
                     val responseToJSON = JSONObject(dataFromResponse)
-                    if (responseToJSON.has("phone"))
+                    if (responseToJSON.has("Error-Message"))
+                        Toast.makeText(this@SignupActivity, responseToJSON.getString("Error-Message").toString(),Toast.LENGTH_LONG).show()
+                    else if (responseToJSON.has("phone"))
                         Toast.makeText(this@SignupActivity, responseToJSON.getString("phone").toString(),Toast.LENGTH_LONG).show()
                     else if (responseToJSON.has("password"))
                         Toast.makeText(this@SignupActivity, responseToJSON.getString("password").toString(),Toast.LENGTH_LONG).show()
                 }
                 catch (e: Throwable){
-                    //2 cases: Success because respone will only contain a String ID so can not convert to JSON in try
+                    //2 cases: Success because respone will only contain a String ID so can not convert to JSON in try block
                     //or response error
                     Log.i("error", e.toString())
                     finish()
