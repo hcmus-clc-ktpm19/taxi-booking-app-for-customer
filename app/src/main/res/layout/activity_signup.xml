@@ -87,7 +87,7 @@
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/hint_text_color"
             app:endIconMode="password_toggle"
-            android:id="@+id/paswordInputText"
+            android:id="@+id/paswordInputLayout"
             >
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -132,7 +132,7 @@
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/hint_text_color"
             app:endIconMode="password_toggle"
-            android:id="@+id/confirmPaswordInputText"
+            android:id="@+id/confirmPaswordInputLayout"
             >
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -150,7 +150,7 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        app:cornerRadius="10dp"
+        android:id="@+id/signUpBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/confirmPasswordContainer"
@@ -161,7 +161,8 @@
         android:padding="10dp"
         android:text="@string/sign_up_label"
         android:textColor="@color/primary_color"
-        android:textSize="17dp">
+        android:textSize="17dp"
+        app:cornerRadius="10dp">
 
     </com.google.android.material.button.MaterialButton>
 
