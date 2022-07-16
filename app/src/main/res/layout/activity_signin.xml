@@ -79,7 +79,7 @@
             android:textSize="17dp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/paswordInputText"
+            android:id="@+id/passwordInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
