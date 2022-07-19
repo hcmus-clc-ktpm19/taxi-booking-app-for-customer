@@ -2,12 +2,18 @@ package com.example.wibercustomer.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.InputMethod
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -89,38 +95,43 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this)
 
-        binding.findButton.setOnClickListener{ findButtonActionClick ->
-            val destination = binding.destinationInputLayout.editText!!.text
-            val coder = Geocoder(applicationContext)
-            try {
-                val adresses: ArrayList<Address> =
-                    coder.getFromLocationName(destination.toString(), 1) as ArrayList<Address>
-                if (adresses.isNotEmpty()) {
-                    val location: Address = adresses[0]
-                    destinatioLocation = LatLng(location.latitude, location.longitude)
+        binding.destinationInputLayout.editText?.setOnKeyListener(View.OnKeyListener { textView, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                val destination = binding.destinationInputLayout.editText!!.text
+                val coder = Geocoder(applicationContext)
+                try {
+                    val adresses: ArrayList<Address> =
+                        coder.getFromLocationName(destination.toString(), 1) as ArrayList<Address>
+                    if (adresses.isNotEmpty()) {
+                        val location: Address = adresses[0]
+                        destinatioLocation = LatLng(location.latitude, location.longitude)
 
-                    if (destinationLocationMarker != null) {
-                        mMap.clear()
-                        mMap.addMarker(
-                            com.google.android.gms.maps.model.MarkerOptions()
-                                .position(startLocation)
-                                .title("You are here")
+                        if (destinationLocationMarker != null) {
+                            mMap.clear()
+                            mMap.addMarker(
+                                com.google.android.gms.maps.model.MarkerOptions()
+                                    .position(startLocation)
+                                    .title("You are here")
+                            )
+                            destinationLocationMarker!!.remove()
+                        }
+                        //Put marker on map on that LatLng
+                        destinationLocationMarker = mMap.addMarker(
+                            MarkerOptions().position(destinatioLocation).title("Destination")
                         )
-                        destinationLocationMarker!!.remove()
-                    }
-                    //Put marker on map on that LatLng
-                    destinationLocationMarker = mMap.addMarker(
-                        MarkerOptions().position(destinatioLocation).title("Destination")
-                    )
-                    homeViewModel.getDirectionAndDistance(startLocation, destinatioLocation)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                        homeViewModel.getDirectionAndDistance(startLocation, destinatioLocation)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                    } else
+                        Toast.makeText(this, "No address found", Toast.LENGTH_LONG).show()
+                } catch (e: IOException) {
+                    e.printStackTrace();
                 }
-            } catch (e: IOException) {
-                e.printStackTrace();
+                hideKeyboad()
+                return@OnKeyListener true
             }
-        }
-
+            false
+        })
     }
 
 
@@ -163,6 +174,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     )
                 }
             }
+        }
+    }
+    private fun hideKeyboad()
+    {
+        val view : View? = this.currentFocus
+        if (view!= null)
+        {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
 }
