@@ -32,16 +32,16 @@ class HomeViewModel : ViewModel() {
             "${destinatioLocation.longitude},${destinatioLocation.latitude}"
         )
             .enqueue(object : Callback<ResponseBody> {
-                override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     Log.e("error Api", t.toString())
                 }
 
                 override fun onResponse(
-                    call: Call<ResponseBody>?,
-                    response: Response<ResponseBody>?
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
                 ) {
-                    val dataFromApi = response?.body()?.string()
-                    val elementObj = JSONObject(dataFromApi)
+                    val dataFromApi = response.body()?.string()
+                    val elementObj = JSONObject(dataFromApi.toString())
                     val lineString = elementObj.getJSONArray("features")
                         .getJSONObject(0)
                         .getJSONObject("geometry")

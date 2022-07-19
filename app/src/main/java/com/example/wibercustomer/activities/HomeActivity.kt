@@ -45,12 +45,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
-        var toolbar = binding.toolbar
+        val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.title = "Home"
-        var drawerLayout = binding.drawerLayout
-        var navigationView = binding.navView
-        var actionBarDrawerToggle = ActionBarDrawerToggle(
+        val drawerLayout = binding.drawerLayout
+        val navigationView = binding.navView
+        val actionBarDrawerToggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.openNavDrawer,
             R.string.closeNavDrawer
@@ -89,14 +89,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this)
 
-        binding.findButton.setOnClickListener {
+        binding.findButton.setOnClickListener{ findButtonActionClick ->
             val destination = binding.destinationInputLayout.editText!!.text
             val coder = Geocoder(applicationContext)
             try {
                 val adresses: ArrayList<Address> =
                     coder.getFromLocationName(destination.toString(), 1) as ArrayList<Address>
-                if (!adresses.isEmpty()) {
-                    val location: Address = adresses.get(0)
+                if (adresses.isNotEmpty()) {
+                    val location: Address = adresses[0]
                     destinatioLocation = LatLng(location.latitude, location.longitude)
 
                     if (destinationLocationMarker != null) {
