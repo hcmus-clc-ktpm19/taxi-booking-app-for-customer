@@ -50,7 +50,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-
+                android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:background="@drawable/inputtextfileoutline"
                 android:textColor="@color/white"
@@ -92,7 +92,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
+                android:singleLine="true"
                 app:hintEnabled="false"
                 android:textColor="@color/white"
                 android:background="@drawable/inputtextfileoutline"
@@ -137,7 +137,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
+                android:singleLine="true"
                 app:hintEnabled="false"
                 android:textColor="@color/white"
                 android:background="@drawable/inputtextfileoutline"

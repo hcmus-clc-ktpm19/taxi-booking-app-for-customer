@@ -48,7 +48,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-
+                android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:background="@drawable/inputtextfileoutline"
                 android:paddingTop="16dp"
@@ -93,7 +93,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
+                android:singleLine="true"
                 android:background="@drawable/inputtextfileoutline"
                 android:inputType="textPassword"
                 android:paddingTop="16dp"
