@@ -42,6 +42,7 @@ class SignupActivity : AppCompatActivity() {
             else
             {
                 val newCustomer = Customer(phoneNumber, password)
+                Log.i("customerinfo", newCustomer.phone.toString())
                 registerNewCustomer(newCustomer)
             }
         }
@@ -55,21 +56,21 @@ class SignupActivity : AppCompatActivity() {
     {
         AuthService.authService.registerCustomer(customer).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                val dataFromResponse = response?.body()?.string()
-                try {
-                    val responseToJSON = JSONObject(dataFromResponse)
+                if (response.isSuccessful)
+                {
+                    Toast.makeText(this@SignupActivity, "Create account successfully",Toast.LENGTH_LONG).show()
+                    finish()
+                }
+                else
+                {
+                    val dataFromResponse = response.errorBody()?.string()
+                    val responseToJSON = JSONObject(dataFromResponse.toString())
                     if (responseToJSON.has("Error-Message"))
                         Toast.makeText(this@SignupActivity, responseToJSON.getString("Error-Message").toString(),Toast.LENGTH_LONG).show()
                     else if (responseToJSON.has("phone"))
                         Toast.makeText(this@SignupActivity, responseToJSON.getString("phone").toString(),Toast.LENGTH_LONG).show()
                     else if (responseToJSON.has("password"))
                         Toast.makeText(this@SignupActivity, responseToJSON.getString("password").toString(),Toast.LENGTH_LONG).show()
-                }
-                catch (e: Throwable){
-                    //2 cases: Success because respone will only contain a String ID so can not convert to JSON in try block
-                    //or response error
-                    Log.i("error", e.toString())
-                    finish()
                 }
             }
 
