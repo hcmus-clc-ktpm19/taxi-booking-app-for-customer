@@ -1,12 +1,9 @@
 package com.example.wibercustomer.models
 
-enum class roleEnum {
-    CUSTOMER,
-}
-
-class Customer (
+class CustomerInfo  (
+    var id: String,
     var phone: String,
-    var password : String,
+    var name : String,
     var role : roleEnum = roleEnum.CUSTOMER
 ){
 
