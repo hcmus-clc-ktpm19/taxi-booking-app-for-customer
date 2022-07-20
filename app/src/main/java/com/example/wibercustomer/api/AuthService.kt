@@ -1,7 +1,7 @@
 package com.example.wibercustomer.api
 
 import com.example.wibercustomer.models.AuthToken
-import com.example.wibercustomer.models.Customer
+import com.example.wibercustomer.models.Account
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -14,7 +14,7 @@ import retrofit2.http.POST
 interface AuthService {
 
     @POST("register")
-    fun registerCustomer(@Body customer: Customer): Call<ResponseBody>
+    fun registerCustomer(@Body customer: Account): Call<ResponseBody>
 
     @FormUrlEncoded
     @POST("login")

@@ -3,6 +3,8 @@ package com.example.wibercustomer.activities
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
+import com.example.wibercustomer.activities.SigninActivity.Companion.phoneNumberLoginFromSignIn
 import com.example.wibercustomer.databinding.ActivityProfileBinding
 import com.example.wibercustomer.viewmodels.ProfileViewModel
 
@@ -22,7 +24,6 @@ class ProfileActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
-
         profileViewModel.nameText.observe(this){
             binding.nameInputLayout.editText?.setText(it)
         }
@@ -30,10 +31,6 @@ class ProfileActivity : AppCompatActivity() {
         profileViewModel.phoneNumberText.observe(this){
             binding.phoneNumberInputLayout.editText?.setText(it)
         }
-
-        profileViewModel.newPasswordText.observe(this){
-            binding.newPasswordInputLayout.editText?.setText(it)
-        }
-
+        profileViewModel.getCustomerInfo(phoneNumberLoginFromSignIn, authCustomerTokenFromSignIn)
     }
 }

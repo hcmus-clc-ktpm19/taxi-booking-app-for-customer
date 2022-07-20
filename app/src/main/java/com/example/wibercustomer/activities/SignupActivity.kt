@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.api.AuthService
 import com.example.wibercustomer.databinding.ActivitySignupBinding
-import com.example.wibercustomer.models.Customer
+import com.example.wibercustomer.models.Account
 import com.example.wibercustomer.viewmodels.SignUpViewModel
 import okhttp3.ResponseBody
 import org.json.JSONObject
@@ -41,8 +41,7 @@ class SignupActivity : AppCompatActivity() {
             }
             else
             {
-                val newCustomer = Customer(phoneNumber, password)
-                Log.i("customerinfo", newCustomer.phone.toString())
+                val newCustomer = Account("", phoneNumber, password)
                 registerNewCustomer(newCustomer)
             }
         }
@@ -52,9 +51,9 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
-    fun registerNewCustomer(customer: Customer)
+    fun registerNewCustomer(account: Account)
     {
-        AuthService.authService.registerCustomer(customer).enqueue(object : Callback<ResponseBody> {
+        AuthService.authService.registerCustomer(account).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful)
                 {

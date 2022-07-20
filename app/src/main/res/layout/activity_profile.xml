@@ -89,6 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="1234"
+                android:enabled="false"
                 android:singleLine="true"
                 android:textColor="@color/black">
             </com.google.android.material.textfield.TextInputEditText>
@@ -113,7 +114,6 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1234"
                 android:singleLine="true"
                 android:textColor="@color/black">
 

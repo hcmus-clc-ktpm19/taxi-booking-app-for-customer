@@ -20,7 +20,8 @@ class SigninActivity : AppCompatActivity() {
     private lateinit var loginviewModel: SignInViewModel
 
     companion object{
-        lateinit var authCustomerToken: AuthToken
+        lateinit var authCustomerTokenFromSignIn: AuthToken
+        lateinit var phoneNumberLoginFromSignIn: String
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +53,8 @@ class SigninActivity : AppCompatActivity() {
             override fun onResponse(call: Call<AuthToken>, response: Response<AuthToken>) {
                 if (response.isSuccessful)
                 {
-                    authCustomerToken = response.body()!!
+                    authCustomerTokenFromSignIn = response.body()!!
+                    phoneNumberLoginFromSignIn = phoneNumber
                     startActivity(Intent(this@SigninActivity, HomeActivity::class.java))
                 }
                 else
