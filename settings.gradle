@@ -3,6 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        jcenter()
         maven{
             url  'https://oss.sonatype.org/content/repositories/snapshots/'
             name 'OSS-Sonatype'
@@ -14,6 +15,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
 }
 rootProject.name = "Wiber Customer"
