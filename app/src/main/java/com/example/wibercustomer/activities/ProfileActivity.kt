@@ -2,6 +2,8 @@ package com.example.wibercustomer.activities
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -70,24 +72,39 @@ class ProfileActivity : AppCompatActivity() {
                                     accountDetail.id, accountDetail,
                                     "Bearer ${authCustomerTokenFromSignIn.accessToken}"
                                 )
+                                val customerUpdate = CustomerInfo(
+                                    accountDetail.id, phoneNumberLoginFromSignIn,
+                                    nameLayout.editText!!.text.toString(), roleEnum.CUSTOMER
+                                )
+                                updateCustomerInfo(customerUpdate)
                             } catch (e: Exception) {
                                 alertDialog.dismiss()
-                                Toast.makeText(
-                                    this@ProfileActivity,
-                                    (e as? HttpException)?.response()?.errorBody()?.string(),
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(
+                                        this@ProfileActivity,
+                                        (e as? HttpException)?.response()?.errorBody()?.string(),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
                         }
-
-                        val customerUpdate = CustomerInfo(
-                            accountDetail.id, phoneNumberLoginFromSignIn,
-                            nameLayout.editText!!.text.toString(), roleEnum.CUSTOMER
-                        )
-                        updateCustomerInfo(customerUpdate)
+                        else
+                        {
+                            val customerUpdate = CustomerInfo(
+                                accountDetail.id, phoneNumberLoginFromSignIn,
+                                nameLayout.editText!!.text.toString(), roleEnum.CUSTOMER
+                            )
+                            updateCustomerInfo(customerUpdate)
+                        }
                     }
                     else
-                        Toast.makeText(this@ProfileActivity, "Error while saving", Toast.LENGTH_LONG).show()
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                this@ProfileActivity,
+                                "Error while saving",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                 }
             }
             else
