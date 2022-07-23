@@ -33,7 +33,7 @@ class ProfileViewModel : ViewModel() {
     val newPasswordText : LiveData<String> = _newPasswordText
 
     fun getCustomerInfo(phoneNumber : String, token: AuthToken){
-        CustomerService.authService.getAPICustomerInfo(phoneNumber, "Bearer ${token.accessToken}")
+        CustomerService.customerService.getAPICustomerInfo(phoneNumber, "Bearer ${token.accessToken}")
             .enqueue(object : Callback<CustomerInfo>{
                 override fun onResponse(
                     call: Call<CustomerInfo>,
