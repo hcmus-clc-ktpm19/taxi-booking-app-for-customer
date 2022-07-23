@@ -2,6 +2,7 @@ package com.example.wibercustomer.models
 
 enum class roleEnum {
     CUSTOMER,
+    DRIVER
 }
 
 class Account (
