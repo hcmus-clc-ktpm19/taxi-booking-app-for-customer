@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/bottom_sheet_layout"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shapelayout"
+    android:backgroundTint="@color/primary_color"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="15dp"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_toLeftOf="@+id/seperator"
+            android:id="@+id/fromInputLayout"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_marginRight="5dp"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:startIconDrawable="@drawable/ic_location"
+            app:startIconTint="@color/red_icon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxLines="2"
+                android:text="Home"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seperator"
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"
+            android:text="|"
+            android:textSize="30dp"
+            android:textStyle="bold"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginLeft="10dp"
+            android:id="@+id/toWhereInputLayout"
+            android:layout_toRightOf="@+id/seperator"
+            android:layout_width="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:startIconDrawable="@drawable/ic_arriving"
+            app:startIconTint="@color/red_icon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="To School"
+                android:maxLines="2"
+                android:layout_gravity="center"
+                android:textSize="15dp"
+                android:textColor="@color/white" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_gravity="center"
+            android:id="@+id/distanceToGo"
+            android:layout_toLeftOf="@+id/seperatordistance"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_marginRight="5dp"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:startIconDrawable="@drawable/ic_distance"
+            app:startIconTint="@color/red_icon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="0m"
+                android:textStyle="bold" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/seperatordistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="|"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_gravity="center"
+            android:id="@+id/moneyToPay"
+            android:layout_toRightOf="@+id/seperatordistance"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:startIconDrawable="@drawable/ic_money50"
+            app:startIconTint="@color/red_icon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="0 VND"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </RelativeLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_marginTop="30dp"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/white"
+        android:text="Request a car"
+        android:textSize="24dp"
+        android:textColor="@color/primary_color"
+        android:id="@+id/requestCar"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

@@ -13,6 +13,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.textfield.TextInputLayout
 import java.io.IOException
 
 
@@ -44,12 +47,38 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     internal var destinationLocationMarker: Marker? = null
     private lateinit var startLocation: LatLng
 
+    private lateinit var bottomLayout :LinearLayout
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+
+        bottomLayout = findViewById(R.id.bottom_sheet_layout)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomLayout)
+        val fromLayout = bottomLayout.findViewById<TextInputLayout>(R.id.fromInputLayout)
+        val toWhereLayout = bottomLayout.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
+        val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
+        val moneyLayout = bottomLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
+
+        homeViewModel.pickingAddressValue.observe(this) {
+            fromLayout.editText?.setText(it)
+        }
+
+        homeViewModel.arrivingAddressValue.observe(this) {
+            toWhereLayout.editText?.setText(it)
+        }
+
+        homeViewModel.distanceValue.observe(this){
+            distanceLayout.editText?.setText("${it.toString()}m")
+        }
+
+        homeViewModel.moneyValue.observe(this) {
+            moneyLayout.editText?.setText("${it.toInt().toString()} VND")
+        }
 
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
@@ -119,9 +148,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         destinationLocationMarker = mMap.addMarker(
                             MarkerOptions().position(destinatioLocation).title("Destination")
                         )
-                        homeViewModel.getDirectionAndDistance(startLocation, destinatioLocation)
+                        homeViewModel.getDirectionAndDistance(startLocation, destinatioLocation, coder)
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED)
+                        {
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        }
                     } else
                         Toast.makeText(this, "No address found", Toast.LENGTH_LONG).show()
                 } catch (e: IOException) {
