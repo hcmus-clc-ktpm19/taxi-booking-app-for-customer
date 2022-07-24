@@ -8,11 +8,13 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -20,7 +22,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
+import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
+import com.example.wibercustomer.activities.SigninActivity.Companion.phoneNumberLoginFromSignIn
+import com.example.wibercustomer.api.CustomerService
+import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.databinding.ActivityHomeBinding
+import com.example.wibercustomer.models.CarRequest
+import com.example.wibercustomer.models.CustomerInfo
 import com.example.wibercustomer.viewmodels.HomeViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -34,6 +42,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.TextInputLayout
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.IOException
 
 
@@ -63,6 +75,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val toWhereLayout = bottomLayout.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
         val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
         val moneyLayout = bottomLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
+        val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
 
         homeViewModel.pickingAddressValue.observe(this) {
             fromLayout.editText?.setText(it)
@@ -165,6 +178,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             false
         })
+
+        requestCarbtn.setOnClickListener { reqBtnOnClick ->
+            checkCustomerIsValidAndRequestCar()
+        }
     }
 
 
@@ -217,5 +234,64 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+
+    private fun checkCustomerIsValidAndRequestCar(){
+        CustomerService.customerService.getAPICustomerInfo(phoneNumberLoginFromSignIn, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
+            .enqueue(object : Callback<CustomerInfo>{
+                override fun onResponse(
+                    call: Call<CustomerInfo>,
+                    response: Response<CustomerInfo>
+                ) {
+                    if (response.isSuccessful)
+                    {
+                        val carRequest = CarRequest(null, response.body()!!.id,
+                            homeViewModel.pickingAddressValue.value!!, homeViewModel.arrivingAddressValue.value!!,
+                            startLocation.longitude, startLocation.latitude,
+                            destinatioLocation.longitude, destinatioLocation.latitude)
+
+                        requestCarByCustomer(carRequest)
+
+                    }
+                    else
+                    {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(this@HomeActivity, "Please input name in profile", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<CustomerInfo>, t: Throwable) {
+                    //Server dead
+                }
+
+            })
+    }
+
+    private fun requestCarByCustomer(carRequest : CarRequest)
+    {
+        RequestCarService.requestCarService.requestCarByAPI(carRequest, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
+            .enqueue(object : Callback<ResponseBody>{
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful)
+                    {
+                        Toast.makeText(this@HomeActivity, "Request a car sucessfully", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                    else
+                    {
+                        Toast.makeText(this@HomeActivity, "error: ${response.errorBody().toString()}", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    //server Dead
+                }
+
+            })
     }
 }
