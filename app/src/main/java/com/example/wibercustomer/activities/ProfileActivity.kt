@@ -1,11 +1,13 @@
 package com.example.wibercustomer.activities
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
 import com.example.wibercustomer.activities.SigninActivity.Companion.phoneNumberLoginFromSignIn
@@ -15,6 +17,7 @@ import com.example.wibercustomer.databinding.ActivityProfileBinding
 import com.example.wibercustomer.models.CustomerInfo
 import com.example.wibercustomer.models.roleEnum
 import com.example.wibercustomer.viewmodels.ProfileViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dmax.dialog.SpotsDialog
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -58,84 +61,16 @@ class ProfileActivity : AppCompatActivity() {
         profileViewModel.getCustomerInfo(phoneNumberLoginFromSignIn, authCustomerTokenFromSignIn)
 
         binding.saveBtn.setOnClickListener { saveBtnOnclick ->
-            if (nameLayout.editText?.text?.isNotEmpty() == true)
-            {
-                alertDialog.show()
-                GlobalScope.launch {
-                    val accountDetail = AuthService.authService.getAccountDetail(
-                        phoneNumberLoginFromSignIn, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
-                    if (accountDetail != null) {
-                        if (newPasswordLayout.editText?.text?.isNotEmpty() == true) {
-                            accountDetail.password = newPasswordLayout.editText!!.text.toString()
-                            try {
-                                AuthService.authService.updatePasswordAPI(
-                                    accountDetail.id, accountDetail,
-                                    "Bearer ${authCustomerTokenFromSignIn.accessToken}"
-                                )
-                                val customerUpdate = CustomerInfo(
-                                    accountDetail.id, phoneNumberLoginFromSignIn,
-                                    nameLayout.editText!!.text.toString(), roleEnum.CUSTOMER
-                                )
-                                updateCustomerInfo(customerUpdate)
-                            } catch (e: Exception) {
-                                alertDialog.dismiss()
-                                Handler(Looper.getMainLooper()).post {
-                                    Toast.makeText(
-                                        this@ProfileActivity,
-                                        (e as? HttpException)?.response()?.errorBody()?.string(),
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-                        }
-                        else
-                        {
-                            val customerUpdate = CustomerInfo(
-                                accountDetail.id, phoneNumberLoginFromSignIn,
-                                nameLayout.editText!!.text.toString(), roleEnum.CUSTOMER
-                            )
-                            updateCustomerInfo(customerUpdate)
-                        }
-                    }
-                    else
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(
-                                this@ProfileActivity,
-                                "Error while saving",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                }
-            }
-            else
-                Toast.makeText(this@ProfileActivity, "Please input name", Toast.LENGTH_LONG).show()
+            val nameString = nameLayout.editText?.text.toString()
+            val passwordString = newPasswordLayout.editText?.text.toString()
+            alertDialog.show()
+            profileViewModel.startEditingProfile(passwordString, nameString)
         }
-    }
 
-    private fun updateCustomerInfo(customerInfo: CustomerInfo)
-    {
-        CustomerService.customerService.updateCustomerInfoAPI(customerInfo, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
-            .enqueue(object : Callback<ResponseBody>{
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    if (response.isSuccessful)
-                    {
-                        Toast.makeText(this@ProfileActivity, "Update successfully", Toast.LENGTH_LONG).show()
-                        profileViewModel.getCustomerInfo(customerInfo.phone, authCustomerTokenFromSignIn)
-                    }
-                    else
-                    {
-                        Toast.makeText(this@ProfileActivity, "Error while updating", Toast.LENGTH_LONG).show()
-                    }
-                    alertDialog.dismiss()
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Toast.makeText(this@ProfileActivity, "Unable to connect to server", Toast.LENGTH_LONG).show()
-                }
-
-            })
+        val statusObserver = Observer<String>{ status ->
+            alertDialog.dismiss()
+            Toast.makeText(this@ProfileActivity, status, Toast.LENGTH_LONG).show()
+        }
+        profileViewModel.editProfileStatus.observe(this, statusObserver)
     }
 }

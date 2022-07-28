@@ -7,12 +7,14 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.api.AuthService
 import com.example.wibercustomer.databinding.ActivitySigninBinding
 import com.example.wibercustomer.models.AuthToken
 import com.example.wibercustomer.models.roleEnum
 import com.example.wibercustomer.viewmodels.SignInViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -23,7 +25,6 @@ class SigninActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySigninBinding
     private lateinit var loginviewModel: SignInViewModel
-
     companion object{
         lateinit var authCustomerTokenFromSignIn: AuthToken
         lateinit var phoneNumberLoginFromSignIn: String
@@ -46,45 +47,45 @@ class SigninActivity : AppCompatActivity() {
         }
 
         binding.signinbtn.setOnClickListener {
-            val phoneNumber = phoneIL.editText?.text.toString()
-            val password = passwordIL.editText?.text.toString()
-            signInGetToken(phoneNumber, password)
+            loginviewModel.signIn(
+                phoneIL.editText?.text.toString(),
+                passwordIL.editText?.text.toString()
+            )
         }
-
-    }
-
-    fun signInGetToken(phoneNumber: String, password:String){
-        AuthService.authService.loginThroughAPI(phoneNumber, password).enqueue(object :Callback<AuthToken>{
-            override fun onResponse(call: Call<AuthToken>, response: Response<AuthToken>) {
-                if (response.isSuccessful)
-                {
-                    authCustomerTokenFromSignIn = response.body()!!
-                    phoneNumberLoginFromSignIn = phoneNumber
-                    GlobalScope.launch {
-                        val accountDetail = AuthService.authService.getAccountDetail(
-                            phoneNumberLoginFromSignIn,
-                            "Bearer ${authCustomerTokenFromSignIn.accessToken}"
-                        )
-                        if (!accountDetail.role.equals(roleEnum.CUSTOMER))
-                        {
-                            Handler(Looper.getMainLooper()).post {
-                                Toast.makeText(this@SigninActivity, "This account is not a customer", Toast.LENGTH_SHORT).show()
-                            }
+        val statusObserver = Observer<String>{ status ->
+            when (status) {
+                "This account is not a customer" -> {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Error")
+                        .setMessage("This account is not a customer")
+                        .setPositiveButton("OK") { dialog, _ ->
+                            dialog.dismiss()
                         }
-                        else
-                            startActivity(Intent(this@SigninActivity, HomeActivity::class.java))
-                    }
+                        .show()
                 }
-                else
-                {
-                    Toast.makeText(this@SigninActivity, "Wrong phone number or password", Toast.LENGTH_LONG).show()
+                "Wrong phone number or password" -> {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Error")
+                        .setMessage("Invalid phone number or password")
+                        .setPositiveButton("OK") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+                "Success" -> {
+                    startActivity(Intent(this@SigninActivity, HomeActivity::class.java))
+                }
+                else -> {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Error")
+                        .setMessage(status)
+                        .setPositiveButton("OK") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
             }
-
-            override fun onFailure(call: Call<AuthToken>, t: Throwable) {
-                Toast.makeText(this@SigninActivity, t.toString(), Toast.LENGTH_LONG).show()
-            }
-
-        })
+        }
+        loginviewModel.status.observe(this, statusObserver)
     }
 }
