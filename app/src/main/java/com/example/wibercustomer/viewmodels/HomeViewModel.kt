@@ -2,11 +2,19 @@ package com.example.wibercustomer.viewmodels
 
 import android.content.Context
 import android.location.Geocoder
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.wibercustomer.activities.SigninActivity
+import com.example.wibercustomer.api.CustomerService
+import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.api.RouteService
+import com.example.wibercustomer.models.CarRequest
+import com.example.wibercustomer.models.CustomerInfo
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.ResponseBody
 import org.json.JSONArray
@@ -92,6 +100,65 @@ class HomeViewModel : ViewModel() {
                     }
                     _geoPoint.value = coordinates
                 }
+            })
+    }
+
+    var requestCarStatus = MutableLiveData<String>()
+
+    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng,){
+        CustomerService.customerService.getAPICustomerInfo(SigninActivity.phoneNumberLoginFromSignIn, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
+            .enqueue(object : Callback<CustomerInfo>{
+                override fun onResponse(
+                    call: Call<CustomerInfo>,
+                    response: Response<CustomerInfo>
+                ) {
+                    if (response.isSuccessful)
+                    {
+                        val carRequest = CarRequest(null, response.body()!!.id,
+                            pickingAddressValue.value!!, arrivingAddressValue.value!!,
+                            startLocation.longitude, startLocation.latitude,
+                            destinatioLocation.longitude, destinatioLocation.latitude)
+
+                        requestCarByCustomer(carRequest)
+
+                    }
+                    else
+                    {
+                        requestCarStatus.postValue("Please input name in profile")
+                    }
+                }
+
+                override fun onFailure(call: Call<CustomerInfo>, t: Throwable) {
+                    //Server dead
+                    requestCarStatus.postValue(t.toString())
+                }
+
+            })
+    }
+
+    private fun requestCarByCustomer(carRequest : CarRequest)
+    {
+        RequestCarService.requestCarService.requestCarByAPI(carRequest, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
+            .enqueue(object : Callback<ResponseBody>{
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful)
+                    {
+                        requestCarStatus.postValue("Request a car sucessfully")
+                    }
+                    else
+                    {
+                        requestCarStatus.postValue("error: ${response.errorBody().toString()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    //server Dead
+                    requestCarStatus.postValue(t.toString())
+                }
+
             })
     }
 }

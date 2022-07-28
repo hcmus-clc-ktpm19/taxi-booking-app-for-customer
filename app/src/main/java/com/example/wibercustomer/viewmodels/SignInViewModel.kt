@@ -34,9 +34,7 @@ class SignInViewModel : ViewModel() {
                         )
                         if (!accountDetail.role.equals(roleEnum.CUSTOMER))
                         {
-                            Handler(Looper.getMainLooper()).post {
-                                status.postValue("This account is not a customer")
-                            }
+                            status.postValue("This account is not a customer")
                         }
                         else
                             status.postValue("Success")

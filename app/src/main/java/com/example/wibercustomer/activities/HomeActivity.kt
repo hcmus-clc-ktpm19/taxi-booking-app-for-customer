@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -131,7 +133,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val supportMapFragment: SupportMapFragment =
             supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         // async map
-        Log.i("info", "async map")
         supportMapFragment.getMapAsync(this)
 
         fusedLocationProviderClient =
@@ -180,8 +181,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
-            checkCustomerIsValidAndRequestCar()
+            homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
         }
+        val statusObserver = Observer<String>{ status ->
+            Toast.makeText(this, status, Toast.LENGTH_LONG).show()
+        }
+        homeViewModel.requestCarStatus.observe(this, statusObserver)
     }
 
 
@@ -236,62 +241,4 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun checkCustomerIsValidAndRequestCar(){
-        CustomerService.customerService.getAPICustomerInfo(phoneNumberLoginFromSignIn, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
-            .enqueue(object : Callback<CustomerInfo>{
-                override fun onResponse(
-                    call: Call<CustomerInfo>,
-                    response: Response<CustomerInfo>
-                ) {
-                    if (response.isSuccessful)
-                    {
-                        val carRequest = CarRequest(null, response.body()!!.id,
-                            homeViewModel.pickingAddressValue.value!!, homeViewModel.arrivingAddressValue.value!!,
-                            startLocation.longitude, startLocation.latitude,
-                            destinatioLocation.longitude, destinatioLocation.latitude)
-
-                        requestCarByCustomer(carRequest)
-
-                    }
-                    else
-                    {
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(this@HomeActivity, "Please input name in profile", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<CustomerInfo>, t: Throwable) {
-                    //Server dead
-                }
-
-            })
-    }
-
-    private fun requestCarByCustomer(carRequest : CarRequest)
-    {
-        RequestCarService.requestCarService.requestCarByAPI(carRequest, "Bearer ${authCustomerTokenFromSignIn.accessToken}")
-            .enqueue(object : Callback<ResponseBody>{
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    if (response.isSuccessful)
-                    {
-                        Toast.makeText(this@HomeActivity, "Request a car sucessfully", Toast.LENGTH_LONG)
-                            .show()
-                    }
-                    else
-                    {
-                        Toast.makeText(this@HomeActivity, "error: ${response.errorBody().toString()}", Toast.LENGTH_LONG)
-                            .show()
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    //server Dead
-                }
-
-            })
-    }
 }
