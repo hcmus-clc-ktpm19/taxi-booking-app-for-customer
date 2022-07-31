@@ -8,8 +8,6 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -23,13 +21,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
-import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
-import com.example.wibercustomer.activities.SigninActivity.Companion.phoneNumberLoginFromSignIn
-import com.example.wibercustomer.api.CustomerService
-import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.models.CarRequest
-import com.example.wibercustomer.models.CustomerInfo
+import com.example.wibercustomer.states.acceptRequestState
+import com.example.wibercustomer.states.freeRequestState
+import com.example.wibercustomer.states.waitingRequestState
 import com.example.wibercustomer.viewmodels.HomeViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -42,12 +38,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.IOException
 
 
@@ -63,6 +54,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var bottomLayout :LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    private lateinit var currentCarRequest: CarRequest
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,6 +85,26 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         homeViewModel.moneyValue.observe(this) {
             moneyLayout.editText?.setText("${it.toInt().toString()} VND")
+        }
+
+        homeViewModel.carRequestValue.observe(this){
+            currentCarRequest = it
+        }
+
+        binding.callFree.setOnClickListener {
+            binding.testState.text = currentCarRequest.freeRequest()
+        }
+
+        binding.callWait.setOnClickListener {
+            binding.testState.text = currentCarRequest.waitingRequest()
+        }
+
+        binding.callAccept.setOnClickListener {
+            binding.testState.text = currentCarRequest.acceptedRequest()
+        }
+
+        binding.callToNextState.setOnClickListener {
+            homeViewModel.nextState()
         }
 
         val toolbar = binding.toolbar
@@ -180,9 +192,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             false
         })
 
+
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
             homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
         }
+
+
+
         val statusObserver = Observer<String>{ status ->
             Toast.makeText(this, status, Toast.LENGTH_LONG).show()
         }
