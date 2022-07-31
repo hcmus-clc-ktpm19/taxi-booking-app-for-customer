@@ -90,18 +90,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         homeViewModel.carRequestValue.observe(this){
             currentCarRequest = it
-        }
-
-        binding.callFree.setOnClickListener {
-            binding.testState.text = currentCarRequest.freeRequest()
-        }
-
-        binding.callWait.setOnClickListener {
-            binding.testState.text = currentCarRequest.waitingRequest()
-        }
-
-        binding.callAccept.setOnClickListener {
-            binding.testState.text = currentCarRequest.acceptedRequest()
+            binding.testState.text = currentCarRequest.getString().toString()
         }
 
         binding.callToNextState.setOnClickListener {
@@ -201,6 +190,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(this, status, Toast.LENGTH_LONG).show()
         }
         homeViewModel.requestCarStatus.observe(this, statusObserver)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
     }
 
 

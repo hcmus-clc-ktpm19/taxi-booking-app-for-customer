@@ -175,16 +175,8 @@ class HomeViewModel : ViewModel() {
     }
 
     fun nextState(){
-        when (_carRequestValue.value!!.currentState::class.java){
-            freeRequestState::class.java ->{
-                _carRequestValue.value!!.setRequestState(waitingRequestState())
-            }
-            waitingRequestState::class.java ->{
-                _carRequestValue.value!!.setRequestState(acceptRequestState())
-            }
-            acceptRequestState::class.java ->{
-                _carRequestValue.value!!.setRequestState(freeRequestState())
-            }
-        }
+        val temp = _carRequestValue.value
+        temp?.getString()
+        _carRequestValue.value = temp
     }
 }

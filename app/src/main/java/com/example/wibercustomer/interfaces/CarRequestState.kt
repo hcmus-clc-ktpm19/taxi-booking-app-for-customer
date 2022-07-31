@@ -1,7 +1,7 @@
 package com.example.wibercustomer.interfaces
 
+import com.example.wibercustomer.models.CarRequest
+
 interface CarRequestState {
-    fun freeRequest() : String
-    fun waitingRequest(): String
-    fun acceptedRequest(): String
+    fun getString(carRequest: CarRequest) : String
 }
