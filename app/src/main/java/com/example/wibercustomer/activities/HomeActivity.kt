@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.IOException
 
@@ -196,9 +197,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
             homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
         }
-
-
-
         val statusObserver = Observer<String>{ status ->
             Toast.makeText(this, status, Toast.LENGTH_LONG).show()
         }

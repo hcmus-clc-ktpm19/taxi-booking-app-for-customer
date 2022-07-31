@@ -114,9 +114,13 @@ class HomeViewModel : ViewModel() {
 
     var requestCarStatus = MutableLiveData<String>()
 
+<<<<<<< HEAD
     fun checkCustomerIsValidAndRequestCar(
         startLocation: LatLng,
         destinatioLocation: LatLng){
+=======
+    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng,){
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
         CustomerService.customerService.getAPICustomerInfo(SigninActivity.phoneNumberLoginFromSignIn, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
             .enqueue(object : Callback<CustomerInfo>{
                 override fun onResponse(
@@ -158,9 +162,12 @@ class HomeViewModel : ViewModel() {
                     if (response.isSuccessful)
                     {
                         requestCarStatus.postValue("Request a car sucessfully")
+<<<<<<< HEAD
                         carRequest.id = response.body().toString()
                         carRequest.setRequestState(waitingRequestState())
                         _carRequestValue.value = carRequest
+=======
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
                     }
                     else
                     {
@@ -175,6 +182,7 @@ class HomeViewModel : ViewModel() {
 
             })
     }
+<<<<<<< HEAD
 
     fun nextState(){
         when (_carRequestValue.value!!.currentState::class.java){
@@ -189,4 +197,6 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+=======
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
 }

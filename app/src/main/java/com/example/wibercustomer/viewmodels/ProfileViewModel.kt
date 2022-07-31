@@ -68,7 +68,6 @@ class ProfileViewModel : ViewModel() {
     }
 
     var editProfileStatus = MutableLiveData<String>()
-
     fun startEditingProfile(passWordString : String, nameString : String){
         if (nameString.isNotEmpty()) {
             GlobalScope.launch {
