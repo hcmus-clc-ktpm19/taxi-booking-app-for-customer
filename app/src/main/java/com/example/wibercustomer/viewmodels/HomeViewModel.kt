@@ -15,6 +15,9 @@ import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.CustomerInfo
+import com.example.wibercustomer.states.acceptRequestState
+import com.example.wibercustomer.states.freeRequestState
+import com.example.wibercustomer.states.waitingRequestState
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.ResponseBody
 import org.json.JSONArray
@@ -50,6 +53,12 @@ class HomeViewModel : ViewModel() {
         value = ""
     }
     val arrivingAddressValue: LiveData<String> = _arrivingAdressValue
+
+    private val _carRequestValue = MutableLiveData<CarRequest>().apply {
+        value = CarRequest(null, "", "", "", 0.0, 0.0,
+                                0.0, 0.0)
+    }
+    val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
     fun getDirectionAndDistance(startLocation: LatLng, destinatioLocation: LatLng, geocoder : Geocoder) {
         val startAddress = geocoder.getFromLocation(startLocation.latitude, startLocation.longitude, 1)
@@ -105,7 +114,13 @@ class HomeViewModel : ViewModel() {
 
     var requestCarStatus = MutableLiveData<String>()
 
+<<<<<<< HEAD
+    fun checkCustomerIsValidAndRequestCar(
+        startLocation: LatLng,
+        destinatioLocation: LatLng){
+=======
     fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng,){
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
         CustomerService.customerService.getAPICustomerInfo(SigninActivity.phoneNumberLoginFromSignIn, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
             .enqueue(object : Callback<CustomerInfo>{
                 override fun onResponse(
@@ -147,6 +162,12 @@ class HomeViewModel : ViewModel() {
                     if (response.isSuccessful)
                     {
                         requestCarStatus.postValue("Request a car sucessfully")
+<<<<<<< HEAD
+                        carRequest.id = response.body().toString()
+                        carRequest.setRequestState(waitingRequestState())
+                        _carRequestValue.value = carRequest
+=======
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
                     }
                     else
                     {
@@ -161,4 +182,21 @@ class HomeViewModel : ViewModel() {
 
             })
     }
+<<<<<<< HEAD
+
+    fun nextState(){
+        when (_carRequestValue.value!!.currentState::class.java){
+            freeRequestState::class.java ->{
+                _carRequestValue.value!!.setRequestState(waitingRequestState())
+            }
+            waitingRequestState::class.java ->{
+                _carRequestValue.value!!.setRequestState(acceptRequestState())
+            }
+            acceptRequestState::class.java ->{
+                _carRequestValue.value!!.setRequestState(freeRequestState())
+            }
+        }
+    }
+=======
+>>>>>>> 54dbb63c9cffd6ba3e495f425ce62382c833cb15
 }
