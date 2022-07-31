@@ -24,16 +24,9 @@ class CarRequest(
         currentState = state
     }
 
-    fun freeRequest() : String{
-        return currentState.freeRequest()
-    }
 
-    fun waitingRequest() : String{
-        return currentState.waitingRequest()
-    }
-
-    fun acceptedRequest() : String{
-        return currentState.acceptedRequest()
+    fun getString() : String{
+        return currentState.getString(this)
     }
 
 }
