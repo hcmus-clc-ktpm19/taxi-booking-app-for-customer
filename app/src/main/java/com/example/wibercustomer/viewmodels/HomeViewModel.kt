@@ -15,6 +15,7 @@ import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.CustomerInfo
+import com.example.wibercustomer.models.enums.CarRequestStatus
 import com.example.wibercustomer.states.acceptRequestState
 import com.example.wibercustomer.states.freeRequestState
 import com.example.wibercustomer.states.waitingRequestState
@@ -55,8 +56,8 @@ class HomeViewModel : ViewModel() {
     val arrivingAddressValue: LiveData<String> = _arrivingAdressValue
 
     private val _carRequestValue = MutableLiveData<CarRequest>().apply {
-        value = CarRequest(null, "", "", "", 0.0, 0.0,
-                                0.0, 0.0)
+        value = CarRequest(null, "", "", "", "", 0.0, 0.0,
+                                0.0, 0.0, CarRequestStatus.FREE.status)
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
@@ -123,13 +124,11 @@ class HomeViewModel : ViewModel() {
                 ) {
                     if (response.isSuccessful)
                     {
-                        val carRequest = CarRequest(null, response.body()!!.id,
+                        val carRequest = CarRequest(null, response.body()!!.id, response.body()!!.phone,
                             pickingAddressValue.value!!, arrivingAddressValue.value!!,
                             startLocation.longitude, startLocation.latitude,
-                            destinatioLocation.longitude, destinatioLocation.latitude)
-
+                            destinatioLocation.longitude, destinatioLocation.latitude, CarRequestStatus.WAITING.status)
                         requestCarByCustomer(carRequest)
-
                     }
                     else
                     {
