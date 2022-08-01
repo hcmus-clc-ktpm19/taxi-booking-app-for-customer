@@ -137,14 +137,14 @@
     </RelativeLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:layout_marginTop="30dp"
+        android:id="@+id/requestCar"
         android:layout_width="300dp"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
         android:backgroundTint="@color/white"
         android:text="Request a car"
-        android:textSize="24dp"
         android:textColor="@color/primary_color"
-        android:id="@+id/requestCar"
-        android:layout_gravity="center"/>
+        android:textSize="24dp" />
 
 </LinearLayout>
