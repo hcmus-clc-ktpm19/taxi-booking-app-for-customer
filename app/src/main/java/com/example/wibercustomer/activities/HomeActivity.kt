@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.models.CarRequest
+import com.example.wibercustomer.models.enums.CarRequestStatus
 import com.example.wibercustomer.states.acceptRequestState
 import com.example.wibercustomer.states.freeRequestState
 import com.example.wibercustomer.states.waitingRequestState
@@ -90,11 +91,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         homeViewModel.carRequestValue.observe(this){
             currentCarRequest = it
-            binding.testState.text = currentCarRequest.getString().toString()
-        }
-
-        binding.callToNextState.setOnClickListener {
-            homeViewModel.nextState()
+            binding.testState.text = currentCarRequest.status
         }
 
         val toolbar = binding.toolbar
@@ -111,10 +108,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         actionBarDrawerToggle.syncState()
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
-                }
                 R.id.nav_profile -> {
                     val intent = Intent(this, ProfileActivity::class.java)
                     startActivity(intent)
@@ -184,7 +177,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
-            homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
+            if (currentCarRequest.isFree())
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
+            else
+                Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
         val statusObserver = Observer<String>{ status ->
             Toast.makeText(this, status, Toast.LENGTH_LONG).show()
