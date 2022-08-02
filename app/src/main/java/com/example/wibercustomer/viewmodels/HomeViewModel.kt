@@ -57,7 +57,7 @@ class HomeViewModel : ViewModel() {
 
     private val _carRequestValue = MutableLiveData<CarRequest>().apply {
         value = CarRequest(null, "", "", "", "", 0.0, 0.0,
-                                0.0, 0.0, CarRequestStatus.FREE.status)
+                                0.0, 0.0)
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
@@ -127,7 +127,7 @@ class HomeViewModel : ViewModel() {
                         val carRequest = CarRequest(null, response.body()!!.id, response.body()!!.phone,
                             pickingAddressValue.value!!, arrivingAddressValue.value!!,
                             startLocation.longitude, startLocation.latitude,
-                            destinatioLocation.longitude, destinatioLocation.latitude, CarRequestStatus.WAITING.status)
+                            destinatioLocation.longitude, destinatioLocation.latitude)
                         requestCarByCustomer(carRequest)
                     }
                     else
@@ -156,7 +156,7 @@ class HomeViewModel : ViewModel() {
                     {
                         requestCarStatus.postValue("Request a car sucessfully")
                         carRequest.id = response.body().toString()
-                        carRequest.setRequestState(waitingRequestState())
+                        carRequest.nextStatusRequest()
                         _carRequestValue.value = carRequest
                     }
                     else
@@ -173,9 +173,4 @@ class HomeViewModel : ViewModel() {
             })
     }
 
-    fun nextState(){
-        val temp = _carRequestValue.value
-        temp?.getString()
-        _carRequestValue.value = temp
-    }
 }
