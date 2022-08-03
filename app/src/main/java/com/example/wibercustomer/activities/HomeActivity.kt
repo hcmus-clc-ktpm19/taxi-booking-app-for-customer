@@ -2,6 +2,7 @@ package com.example.wibercustomer.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.TextInputLayout
+import dmax.dialog.SpotsDialog
 import org.json.JSONException
 import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
@@ -58,6 +60,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomLayout: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var currentCarRequest: CarRequest
+    private lateinit var alertDialog : AlertDialog
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +76,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
         val moneyLayout = bottomLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
         val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
+
+        alertDialog = SpotsDialog.Builder().setContext(this)
+            .setCancelable(false)
+            .setMessage("Uploading")
+            .build()
 
         homeViewModel.pickingAddressValue.observe(this) {
             fromLayout.editText?.setText(it)
@@ -134,8 +142,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this)
 
+
         binding.destinationInputLayout.editText?.setOnKeyListener(View.OnKeyListener { textView, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                alertDialog.show()
+
                 val destination = binding.destinationInputLayout.editText!!.text
                 val coder = Geocoder(applicationContext)
                 try {
@@ -165,9 +176,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
-                        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                        }
                     } else
                         Toast.makeText(this, "No address found", Toast.LENGTH_LONG).show()
                 } catch (e: IOException) {
@@ -186,7 +194,26 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             else
                 Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
-        val statusObserver = Observer<String> { status ->
+
+
+        val routeStatusObserver = Observer<Boolean> {status ->
+            when (status){
+                true -> {
+                    alertDialog.dismiss()
+                    if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+                else -> {
+                    alertDialog.dismiss()
+                    Toast.makeText(this@HomeActivity, "Can not connect to Route Service", Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        }
+        homeViewModel.routeServiceStatus.observe(this, routeStatusObserver)
+
+        val carRequeststatusObserver = Observer<String> { status ->
             when (status) {
                 "Request a car sucessfully" -> {
                     Toast.makeText(this@HomeActivity, currentCarRequest.id.toString(), Toast.LENGTH_LONG).show()
@@ -197,7 +224,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-        homeViewModel.requestCarStatus.observe(this, statusObserver)
+        homeViewModel.requestCarStatus.observe(this, carRequeststatusObserver)
 //        val carRequestStatusObserver = Observer<String>{ status ->
 //            Toast.makeText(this, status, Toast.LENGTH_LONG).show()
 //        }

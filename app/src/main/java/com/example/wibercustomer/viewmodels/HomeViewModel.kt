@@ -61,6 +61,8 @@ class HomeViewModel : ViewModel() {
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
+    var routeServiceStatus = MutableLiveData<Boolean>()
+
     fun getDirectionAndDistance(startLocation: LatLng, destinatioLocation: LatLng, geocoder : Geocoder) {
         val startAddress = geocoder.getFromLocation(startLocation.latitude, startLocation.longitude, 1)
         val destinationAddress = geocoder.getFromLocation(destinatioLocation.latitude, destinatioLocation.longitude, 1)
@@ -77,6 +79,7 @@ class HomeViewModel : ViewModel() {
             .enqueue(object : Callback<ResponseBody> {
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     Log.e("error Api", t.toString())
+                    routeServiceStatus.postValue(false)
                 }
 
                 override fun onResponse(
@@ -109,6 +112,7 @@ class HomeViewModel : ViewModel() {
                         )
                     }
                     _geoPoint.value = coordinates
+                    routeServiceStatus.postValue(true)
                 }
             })
     }
@@ -154,8 +158,8 @@ class HomeViewModel : ViewModel() {
                 ) {
                     if (response.isSuccessful)
                     {
-                        carRequest.id = response.body().toString()
-                        Log.i("request car", response.body().toString())
+                        carRequest.id = response.body()?.string() //this consume that one line string so be careful to use this
+                        Log.i("request car", carRequest.id.toString())
                         carRequest.nextStatusRequest()
                         _carRequestValue.value = carRequest
                         requestCarStatus.postValue("Request a car sucessfully")
