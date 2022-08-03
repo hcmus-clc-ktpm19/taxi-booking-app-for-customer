@@ -23,10 +23,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.models.CarRequest
-import com.example.wibercustomer.models.enums.CarRequestStatus
-import com.example.wibercustomer.states.acceptRequestState
-import com.example.wibercustomer.states.freeRequestState
-import com.example.wibercustomer.states.waitingRequestState
+import com.example.wibercustomer.utils.Const
+import com.example.wibercustomer.utils.StompUtils
 import com.example.wibercustomer.viewmodels.HomeViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -39,8 +37,11 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import org.json.JSONException
+import org.json.JSONObject
+import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.dto.StompMessage
 import java.io.IOException
 
 
@@ -54,7 +55,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     internal var destinationLocationMarker: Marker? = null
     private lateinit var startLocation: LatLng
 
-    private lateinit var bottomLayout :LinearLayout
+    private lateinit var bottomLayout: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var currentCarRequest: CarRequest
 
@@ -81,7 +82,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             toWhereLayout.editText?.setText(it)
         }
 
-        homeViewModel.distanceValue.observe(this){
+        homeViewModel.distanceValue.observe(this) {
             distanceLayout.editText?.setText("${it.toString()}m")
         }
 
@@ -89,7 +90,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             moneyLayout.editText?.setText("${it.toInt().toString()} VND")
         }
 
-        homeViewModel.carRequestValue.observe(this){
+        homeViewModel.carRequestValue.observe(this) {
             currentCarRequest = it
             binding.testState.text = currentCarRequest.status
         }
@@ -147,7 +148,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         if (destinationLocationMarker != null) {
                             mMap.clear()
                             mMap.addMarker(
-                                com.google.android.gms.maps.model.MarkerOptions()
+                                MarkerOptions()
                                     .position(startLocation)
                                     .title("You are here")
                             )
@@ -157,11 +158,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         destinationLocationMarker = mMap.addMarker(
                             MarkerOptions().position(destinatioLocation).title("Destination")
                         )
-                        homeViewModel.getDirectionAndDistance(startLocation, destinatioLocation, coder)
+                        homeViewModel.getDirectionAndDistance(
+                            startLocation,
+                            destinatioLocation,
+                            coder
+                        )
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
-                        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED)
-                        {
+                        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                         }
                     } else
@@ -182,67 +186,103 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             else
                 Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
-        val statusObserver = Observer<String>{ status ->
-            Toast.makeText(this, status, Toast.LENGTH_LONG).show()
-        }
-        homeViewModel.requestCarStatus.observe(this, statusObserver)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-    }
-
-
-    @SuppressLint("MissingPermission")
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        homeViewModel.geoPoint.observe(this) {
-            val polylineOptions = PolylineOptions()
-            polylineOptions.addAll(it)
-            mMap.addPolyline(polylineOptions)
-        }
-        // Add a marker at current user location and move the camera
-        mMap.uiSettings.isZoomControlsEnabled = false
-        val permissionCheck = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            Log.i("info", "permission denied")
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ), 1
-            )
-        } else {
-            Log.i("info", "permission granted")
-            mMap.isMyLocationEnabled = true
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val currentLatLng = LatLng(location.latitude, location.longitude)
-                    startLocation = LatLng(location.latitude, location.longitude)
-                    Log.i("info", "current location: $currentLatLng")
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
-                    mMap.addMarker(
-                        com.google.android.gms.maps.model.MarkerOptions()
-                            .position(currentLatLng)
-                            .title("You are here")
-                    )
+        val statusObserver = Observer<String> { status ->
+            when (status) {
+                "Request a car sucessfully" -> {
+                    Toast.makeText(this@HomeActivity, currentCarRequest.id.toString(), Toast.LENGTH_LONG).show()
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                }
+                else -> {
+                    Toast.makeText(this, "Request failed", Toast.LENGTH_LONG).show()
                 }
             }
         }
+        homeViewModel.requestCarStatus.observe(this, statusObserver)
+//        val carRequestStatusObserver = Observer<String>{ status ->
+//            Toast.makeText(this, status, Toast.LENGTH_LONG).show()
+//        }
+
+    // socket config
+//    val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, Const.address)
+//    Toast.makeText(this, "Start connecting to server", Toast.LENGTH_SHORT).show()
+//    stompClient.connect()
+//    StompUtils.lifecycle(stompClient)
+//    Log.i(Const.TAG, "Subscribe chat endpoint to receive response")
+//    stompClient.topic(Const.chatResponse.replace(Const.placeholder, userId))
+//    .subscribe
+//    {
+//        stompMessage: StompMessage ->
+//        val jsonObject = JSONObject(stompMessage.payload)
+//        Log.i(Const.TAG, "Receive: $jsonObject")
+//        runOnUiThread {
+//            try {
+//                showText.append(
+//                    """
+//                            ${jsonObject.getString("response")}
+//
+//                            """.trimIndent()
+//                )
+//            } catch (e: JSONException) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
+}
+
+override fun onPause() {
+    super.onPause()
+
+}
+
+
+@SuppressLint("MissingPermission")
+override fun onMapReady(googleMap: GoogleMap) {
+    mMap = googleMap
+    homeViewModel.geoPoint.observe(this) {
+        val polylineOptions = PolylineOptions()
+        polylineOptions.addAll(it)
+        mMap.addPolyline(polylineOptions)
     }
-    private fun hideKeyboad()
-    {
-        val view : View? = this.currentFocus
-        if (view!= null)
-        {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
+    // Add a marker at current user location and move the camera
+    mMap.uiSettings.isZoomControlsEnabled = false
+    val permissionCheck = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+        Log.i("info", "permission denied")
+        requestPermissions(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ), 1
+        )
+    } else {
+        Log.i("info", "permission granted")
+        mMap.isMyLocationEnabled = true
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                startLocation = LatLng(location.latitude, location.longitude)
+                Log.i("info", "current location: $currentLatLng")
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                mMap.addMarker(
+                    com.google.android.gms.maps.model.MarkerOptions()
+                        .position(currentLatLng)
+                        .title("You are here")
+                )
+            }
         }
     }
+}
+
+private fun hideKeyboad() {
+    val view: View? = this.currentFocus
+    if (view != null) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+}
 
 }

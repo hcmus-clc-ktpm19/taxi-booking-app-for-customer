@@ -154,10 +154,11 @@ class HomeViewModel : ViewModel() {
                 ) {
                     if (response.isSuccessful)
                     {
-                        requestCarStatus.postValue("Request a car sucessfully")
                         carRequest.id = response.body().toString()
+                        Log.i("request car", response.body().toString())
                         carRequest.nextStatusRequest()
                         _carRequestValue.value = carRequest
+                        requestCarStatus.postValue("Request a car sucessfully")
                     }
                     else
                     {
