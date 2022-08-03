@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import dmax.dialog.SpotsDialog
 import org.json.JSONException
@@ -213,47 +214,44 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         homeViewModel.routeServiceStatus.observe(this, routeStatusObserver)
 
-        val carRequeststatusObserver = Observer<String> { status ->
+        val carRequestStatusObserver = Observer<String> { status ->
             when (status) {
-                "Request a car sucessfully" -> {
+                "Request a car successfully" -> {
                     Toast.makeText(this@HomeActivity, currentCarRequest.id.toString(), Toast.LENGTH_LONG).show()
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    // socket config
+                    val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, Const.address)
+                    Toast.makeText(this, "Start connecting to server", Toast.LENGTH_SHORT).show()
+                    stompClient.connect()
+                    StompUtils.lifecycle(stompClient)
+                    Log.i(Const.TAG, "Subscribe chat endpoint to receive response")
+                    stompClient.topic(Const.chatResponse.replace(Const.placeholder, currentCarRequest.id.toString())).subscribe{
+                            stompMessage: StompMessage ->
+                        val jsonObject = JSONObject(stompMessage.payload)
+                        Log.i(Const.TAG, "Receive: $jsonObject")
+                        runOnUiThread {
+                            try {
+                                // show result here
+                                val message = jsonObject.getString("message")
+                                MaterialAlertDialogBuilder(this@HomeActivity)
+                                    .setTitle("Result")
+                                    .setMessage(message)
+                                    .setPositiveButton("OK") { dialog, which ->
+                                        dialog.dismiss()
+                                    }
+                                    .show()
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
                 }
                 else -> {
                     Toast.makeText(this, "Request failed", Toast.LENGTH_LONG).show()
                 }
             }
         }
-        homeViewModel.requestCarStatus.observe(this, carRequeststatusObserver)
-//        val carRequestStatusObserver = Observer<String>{ status ->
-//            Toast.makeText(this, status, Toast.LENGTH_LONG).show()
-//        }
-
-    // socket config
-//    val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, Const.address)
-//    Toast.makeText(this, "Start connecting to server", Toast.LENGTH_SHORT).show()
-//    stompClient.connect()
-//    StompUtils.lifecycle(stompClient)
-//    Log.i(Const.TAG, "Subscribe chat endpoint to receive response")
-//    stompClient.topic(Const.chatResponse.replace(Const.placeholder, userId))
-//    .subscribe
-//    {
-//        stompMessage: StompMessage ->
-//        val jsonObject = JSONObject(stompMessage.payload)
-//        Log.i(Const.TAG, "Receive: $jsonObject")
-//        runOnUiThread {
-//            try {
-//                showText.append(
-//                    """
-//                            ${jsonObject.getString("response")}
-//
-//                            """.trimIndent()
-//                )
-//            } catch (e: JSONException) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
+        homeViewModel.requestCarStatus.observe(this, carRequestStatusObserver)
 }
 
 override fun onPause() {

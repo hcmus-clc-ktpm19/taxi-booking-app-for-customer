@@ -132,6 +132,7 @@ class HomeViewModel : ViewModel() {
                             pickingAddressValue.value!!, arrivingAddressValue.value!!,
                             startLocation.longitude, startLocation.latitude,
                             destinatioLocation.longitude, destinatioLocation.latitude)
+                        carRequest.status = CarRequestStatus.WAITING.name
                         requestCarByCustomer(carRequest)
                     }
                     else
@@ -162,7 +163,7 @@ class HomeViewModel : ViewModel() {
                         Log.i("request car", carRequest.id.toString())
                         carRequest.nextStatusRequest()
                         _carRequestValue.value = carRequest
-                        requestCarStatus.postValue("Request a car sucessfully")
+                        requestCarStatus.postValue("Request a car successfully")
                     }
                     else
                     {
