@@ -86,33 +86,40 @@ class HomeViewModel : ViewModel() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    val dataFromApi = response.body()?.string()
-                    val elementObj = JSONObject(dataFromApi.toString())
-                    val lineString = elementObj.getJSONArray("features")
-                        .getJSONObject(0)
-                        .getJSONObject("geometry")
-                        .getJSONArray("coordinates")
-                    val distanceAPI = (elementObj.getJSONArray("features")
-                        .getJSONObject(0)
-                        .getJSONObject("properties")
-                        .getJSONArray("segments")
-                        .getJSONObject(0)
-                        .get("distance"))
+                    if (response.isSuccessful)
+                    {
+                        val dataFromApi = response.body()?.string()
+                        val elementObj = JSONObject(dataFromApi.toString())
+                        val lineString = elementObj.getJSONArray("features")
+                            .getJSONObject(0)
+                            .getJSONObject("geometry")
+                            .getJSONArray("coordinates")
+                        val distanceAPI = (elementObj.getJSONArray("features")
+                            .getJSONObject(0)
+                            .getJSONObject("properties")
+                            .getJSONArray("segments")
+                            .getJSONObject(0)
+                            .get("distance"))
 
-                    _distanceValue.value = distanceAPI as Double
-                    _moneyValue.value = (distanceAPI / 500) * 3000 + 15000
-                    val coordinates = ArrayList<LatLng>()
-                    (0 until lineString.length()).forEach {
-                        val iteratorCoordinate = lineString.get(it) as JSONArray
-                        coordinates.add(
-                            LatLng(
-                                iteratorCoordinate[1] as Double,
-                                iteratorCoordinate[0] as Double
+                        _distanceValue.value = distanceAPI as Double
+                        _moneyValue.value = (distanceAPI / 500) * 3000 + 15000
+                        val coordinates = ArrayList<LatLng>()
+                        (0 until lineString.length()).forEach {
+                            val iteratorCoordinate = lineString.get(it) as JSONArray
+                            coordinates.add(
+                                LatLng(
+                                    iteratorCoordinate[1] as Double,
+                                    iteratorCoordinate[0] as Double
+                                )
                             )
-                        )
+                        }
+                        _geoPoint.value = coordinates
+                        routeServiceStatus.postValue(true)
                     }
-                    _geoPoint.value = coordinates
-                    routeServiceStatus.postValue(true)
+                    else
+                    {
+                        routeServiceStatus.postValue(false)
+                    }
                 }
             })
     }
@@ -177,6 +184,12 @@ class HomeViewModel : ViewModel() {
                 }
 
             })
+    }
+
+    fun nextStateCarRequest(carRequest : CarRequest)
+    {
+        carRequest.nextStatusRequest()
+        _carRequestValue.value = carRequest
     }
 
 }
