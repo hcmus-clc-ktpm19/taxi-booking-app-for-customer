@@ -46,6 +46,8 @@ import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.dto.StompMessage
 import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -146,14 +148,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.destinationInputLayout.editText?.setOnKeyListener(View.OnKeyListener { textView, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                alertDialog.show()
 
                 val destination = binding.destinationInputLayout.editText!!.text
-                val coder = Geocoder(applicationContext)
+                val coder = Geocoder(applicationContext, Locale.getDefault())
                 try {
                     val adresses: ArrayList<Address> =
                         coder.getFromLocationName(destination.toString(), 1) as ArrayList<Address>
                     if (adresses.isNotEmpty()) {
+                        alertDialog.show()
                         val location: Address = adresses[0]
                         destinatioLocation = LatLng(location.latitude, location.longitude)
 
@@ -180,7 +182,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     } else
                         Toast.makeText(this, "No address found", Toast.LENGTH_LONG).show()
                 } catch (e: IOException) {
-                    e.printStackTrace();
+                    Log.i("error", e.toString())
                 }
                 hideKeyboad()
                 return@OnKeyListener true
@@ -233,6 +235,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             try {
                                 // show result here
                                 val message = jsonObject.getString("message")
+                                homeViewModel.nextStateCarRequest(currentCarRequest)
                                 MaterialAlertDialogBuilder(this@HomeActivity)
                                     .setTitle("Result")
                                     .setMessage(message)
