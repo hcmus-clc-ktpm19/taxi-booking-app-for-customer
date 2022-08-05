@@ -1,11 +1,7 @@
 package com.example.wibercustomer.viewmodels
 
-import android.content.Context
 import android.location.Geocoder
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,9 +12,6 @@ import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.CustomerInfo
 import com.example.wibercustomer.models.enums.CarRequestStatus
-import com.example.wibercustomer.states.acceptRequestState
-import com.example.wibercustomer.states.freeRequestState
-import com.example.wibercustomer.states.waitingRequestState
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.ResponseBody
 import org.json.JSONArray
@@ -26,7 +19,9 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.math.roundToInt
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class HomeViewModel : ViewModel() {
 
@@ -57,7 +52,7 @@ class HomeViewModel : ViewModel() {
 
     private val _carRequestValue = MutableLiveData<CarRequest>().apply {
         value = CarRequest(null, "", "", "", "", 0.0, 0.0,
-                                0.0, 0.0)
+                                0.0, 0.0, "")
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
@@ -126,7 +121,7 @@ class HomeViewModel : ViewModel() {
 
     var requestCarStatus = MutableLiveData<String>()
 
-    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng,){
+    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng, carType : String){
         CustomerService.customerService.getAPICustomerInfo(SigninActivity.phoneNumberLoginFromSignIn, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
             .enqueue(object : Callback<CustomerInfo>{
                 override fun onResponse(
@@ -138,7 +133,7 @@ class HomeViewModel : ViewModel() {
                         val carRequest = CarRequest(null, response.body()!!.id, response.body()!!.phone,
                             pickingAddressValue.value!!, arrivingAddressValue.value!!,
                             startLocation.longitude, startLocation.latitude,
-                            destinatioLocation.longitude, destinatioLocation.latitude)
+                            destinatioLocation.longitude, destinatioLocation.latitude, carType)
                         carRequest.status = CarRequestStatus.WAITING.name
                         requestCarByCustomer(carRequest)
                     }

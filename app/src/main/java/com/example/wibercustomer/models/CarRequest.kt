@@ -3,6 +3,8 @@ package com.example.wibercustomer.models
 import com.example.wibercustomer.interfaces.CarRequestState
 import com.example.wibercustomer.models.enums.CarRequestStatus
 import com.example.wibercustomer.states.freeRequestState
+import java.time.LocalDateTime
+import java.util.*
 
 
 class CarRequest(
@@ -15,6 +17,7 @@ class CarRequest(
     var latPickingAddress: Double,
     var lngArrivingAddress: Double,
     var latArrivingAddress: Double,
+    var carType: String
 ) {
     lateinit var currentState : CarRequestState
     lateinit var status: String
