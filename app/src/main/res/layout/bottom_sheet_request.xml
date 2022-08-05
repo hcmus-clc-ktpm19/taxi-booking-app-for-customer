@@ -136,6 +136,36 @@
         </com.google.android.material.textfield.TextInputLayout>
     </RelativeLayout>
 
+    <RadioGroup
+        android:id="@+id/chooseCarTypeGroup"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:checkedButton="@+id/seats4Type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <RadioButton
+        android:id="@+id/seats4Type"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="@color/white"
+        app:buttonTint = "@color/red_icon"
+        android:textSize="17dp"
+        android:layout_marginRight="20dp"
+        android:textStyle="bold"
+        android:text="@string/seats4"/>
+    <RadioButton
+        android:id="@+id/seats7Type"
+        android:textSize="17dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dp"
+        android:textColor="@color/white"
+        app:buttonTint = "@color/red_icon"
+        android:textStyle="bold"
+        android:text="@string/seats7"/>
+    </RadioGroup>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/requestCar"
         android:layout_width="300dp"

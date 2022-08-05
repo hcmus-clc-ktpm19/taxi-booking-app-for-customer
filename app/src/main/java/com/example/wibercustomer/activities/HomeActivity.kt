@@ -13,9 +13,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -193,7 +191,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
             if (currentCarRequest.isFree())
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation)
+            {
+                val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
+                val idCheckType = carTypeGroup.checkedRadioButtonId
+                val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, radioBtnChecked.text.toString())
+            }
             else
                 Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
