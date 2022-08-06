@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.models.CarRequest
+import com.example.wibercustomer.strategies.cardMethod
+import com.example.wibercustomer.strategies.cashMethod
 import com.example.wibercustomer.utils.Const
 import com.example.wibercustomer.utils.StompUtils
 import com.example.wibercustomer.viewmodels.HomeViewModel
@@ -68,6 +70,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var currentCarRequest: CarRequest
     private lateinit var alertDialog : AlertDialog
 
+    val paymentMethods = arrayOf("Cash", "VISA/MASTER Card")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,14 +80,16 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         bottomLayout = findViewById(R.id.bottom_sheet_layout)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomLayout)
-        val fromLayout = bottomLayout.findViewById<TextInputLayout>(R.id.fromInputLayout)
-        val toWhereLayout = bottomLayout.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
-        val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
-        val moneyLayout = bottomLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
-        val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
 
         bottomPaymentLayout = findViewById(R.id.bottom_sheet_payment)
         bottomPaymentBehavior = BottomSheetBehavior.from(bottomPaymentLayout)
+
+        val fromLayout = bottomLayout.findViewById<TextInputLayout>(R.id.fromInputLayout)
+        val toWhereLayout = bottomLayout.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
+        val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
+        val moneyLayout = bottomPaymentLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
+        val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
+        val paymentSpinner = bottomPaymentLayout.findViewById<Spinner>(R.id.paymentMethodSpinner)
 
         alertDialog = SpotsDialog.Builder().setContext(this)
             .setCancelable(false)
@@ -99,18 +104,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             toWhereLayout.editText?.setText(it)
         }
 
-        homeViewModel.distanceValue.observe(this) {
-            distanceLayout.editText?.setText("${it.toString()}m")
+        homeViewModel.paymentValue.observe(this) {
+            moneyLayout.editText?.setText("${it.moneyToPay.toInt()} VND")
         }
 
-        homeViewModel.moneyValue.observe(this) {
-            moneyLayout.editText?.setText("${it.toInt().toString()} VND")
+        homeViewModel.distanceValue.observe(this) {
+            distanceLayout.editText?.setText("${it.toString()}m")
         }
 
         homeViewModel.carRequestValue.observe(this) {
             currentCarRequest = it
             binding.testState.text = currentCarRequest.status
         }
+
+        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, paymentMethods)
+
+        paymentSpinner.adapter = arrayAdapter
+
+
 
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
@@ -200,6 +211,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
             if (currentCarRequest.isFree())
             {
+                homeViewModel.calculateMoneyValue()
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 bottomPaymentBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
@@ -209,26 +221,51 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val multiCardWidget = bottomPaymentLayout.findViewById<CardMultilineWidget>(R.id.card_multiline_widget)
 
-        multiCardWidget.setCardValidCallback(object : CardValidCallback{
-            override fun onInputChanged(
-                isValid: Boolean,
-                invalidFields: Set<CardValidCallback.Fields>
-            ) {
-                if (isValid)
+        paymentSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                if (paymentMethods[p2].equals("Cash"))
                 {
+                    homeViewModel.paymentValue.value?.currentPayment = cashMethod()
+                    homeViewModel.calculateMoneyValue()
+                    multiCardWidget.visibility = View.GONE
                     payBtn.isEnabled = true
                     payBtn.isClickable = true
                     payBtn.setBackgroundColor(getResources().getColor(R.color.primary_color))
                 }
                 else
                 {
-                    payBtn.isEnabled = false
-                    payBtn.isClickable = false
-                    payBtn.setBackgroundColor(Color.parseColor("#DAD6D6D6"))
+                    homeViewModel.paymentValue.value?.currentPayment = cardMethod()
+                    homeViewModel.calculateMoneyValue()
+                    multiCardWidget.visibility = View.VISIBLE
+                    multiCardWidget.setCardValidCallback(object : CardValidCallback{
+                        override fun onInputChanged(
+                            isValid: Boolean,
+                            invalidFields: Set<CardValidCallback.Fields>
+                        ) {
+                            if (isValid)
+                            {
+                                payBtn.isEnabled = true
+                                payBtn.isClickable = true
+                                payBtn.setBackgroundColor(getResources().getColor(R.color.primary_color))
+                            }
+                            else
+                            {
+                                payBtn.isEnabled = false
+                                payBtn.isClickable = false
+                                payBtn.setBackgroundColor(Color.parseColor("#DAD6D6D6"))
+                            }
+                        }
+                    })
                 }
             }
 
-        })
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+
 
         payBtn.setOnClickListener {
             val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)

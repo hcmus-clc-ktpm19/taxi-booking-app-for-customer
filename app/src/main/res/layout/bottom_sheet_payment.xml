@@ -14,11 +14,55 @@
     app:behavior_peekHeight="0dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_weight="2"
+            android:textStyle="bold"
+            android:text="Choose payment method: "/>
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/paymentMethodSpinner">
+        </Spinner>
+
+    </LinearLayout>
+
     <com.stripe.android.view.CardMultilineWidget
         android:id="@+id/card_multiline_widget"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_gravity="center"
+        android:id="@+id/moneyToPay"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"/>
+        android:enabled="false"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:startIconDrawable="@drawable/ic_money50"
+        app:startIconTint="#85bb65">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_height="wrap_content"
+            android:text="0 VND"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
     <Button
         android:text="Pay"
@@ -26,9 +70,8 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/payButton"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:backgroundTint="@color/primary_color"/>
-
     <!--  ...  -->
 
 </LinearLayout>
