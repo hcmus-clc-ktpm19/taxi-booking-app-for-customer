@@ -1,10 +1,10 @@
 package com.example.wibercustomer.models
 
 import com.example.wibercustomer.interfaces.CarRequestState
+import com.example.wibercustomer.interfaces.PaymentMethodStrategy
 import com.example.wibercustomer.models.enums.CarRequestStatus
 import com.example.wibercustomer.states.freeRequestState
-import java.time.LocalDateTime
-import java.util.*
+import com.example.wibercustomer.strategies.cashMethod
 
 
 class CarRequest(
@@ -21,14 +21,23 @@ class CarRequest(
 ) {
     lateinit var currentState : CarRequestState
     lateinit var status: String
+    lateinit var currentPayment : PaymentMethodStrategy
+    var moneyToPay : Double = 0.0
+
     init {
         currentState = freeRequestState()
         status = CarRequestStatus.FREE.status
+        currentPayment = cashMethod()
     }
 
     fun setRequestState (state : CarRequestState)
     {
         currentState = state
+    }
+
+    fun setPaymentStrategy(strategy: PaymentMethodStrategy)
+    {
+        currentPayment = strategy
     }
 
 
@@ -39,5 +48,7 @@ class CarRequest(
     fun isFree() : Boolean{
         return currentState.isFree(this)
     }
+
+
 
 }

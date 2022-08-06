@@ -11,6 +11,7 @@ import com.example.wibercustomer.api.RequestCarService
 import com.example.wibercustomer.api.RouteService
 import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.CustomerInfo
+import com.example.wibercustomer.models.Payment
 import com.example.wibercustomer.models.enums.CarRequestStatus
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.ResponseBody
@@ -35,10 +36,10 @@ class HomeViewModel : ViewModel() {
     }
     val distanceValue: LiveData<Double> = _distanceValue
 
-    private val _moneyValue = MutableLiveData<Double>().apply {
-        value = 0.0
+    private val _paymentValue = MutableLiveData<Payment>().apply {
+        value = Payment()
     }
-    val moneyValue: LiveData<Double> = _moneyValue
+    val paymentValue: LiveData<Payment> = _paymentValue
 
     private val _pickingAdressValue = MutableLiveData<String>().apply {
         value = ""
@@ -97,7 +98,6 @@ class HomeViewModel : ViewModel() {
                             .get("distance"))
 
                         _distanceValue.value = distanceAPI as Double
-                        _moneyValue.value = (distanceAPI / 500) * 3000 + 15000
                         val coordinates = ArrayList<LatLng>()
                         (0 until lineString.length()).forEach {
                             val iteratorCoordinate = lineString.get(it) as JSONArray
@@ -185,6 +185,12 @@ class HomeViewModel : ViewModel() {
     {
         carRequest.nextStatusRequest()
         _carRequestValue.value = carRequest
+    }
+
+    fun calculateMoneyValue()
+    {
+        paymentValue.value?.calculateMoney(distanceValue.value!!)
+        _paymentValue.value = paymentValue.value
     }
 
 }
