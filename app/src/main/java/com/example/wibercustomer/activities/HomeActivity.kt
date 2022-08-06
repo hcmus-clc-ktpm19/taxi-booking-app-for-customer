@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
@@ -38,6 +39,8 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import com.stripe.android.view.CardMultilineWidget
+import com.stripe.android.view.CardValidCallback
 import dmax.dialog.SpotsDialog
 import org.json.JSONException
 import org.json.JSONObject
@@ -60,6 +63,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var bottomLayout: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomPaymentLayout: LinearLayout
+    private lateinit var bottomPaymentBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var currentCarRequest: CarRequest
     private lateinit var alertDialog : AlertDialog
 
@@ -77,6 +82,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
         val moneyLayout = bottomLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
         val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
+
+        bottomPaymentLayout = findViewById(R.id.bottom_sheet_payment)
+        bottomPaymentBehavior = BottomSheetBehavior.from(bottomPaymentLayout)
 
         alertDialog = SpotsDialog.Builder().setContext(this)
             .setCancelable(false)
@@ -188,24 +196,53 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             false
         })
 
-
+        val payBtn = bottomPaymentLayout.findViewById<Button>(R.id.payButton)
         requestCarbtn.setOnClickListener { reqBtnOnClick ->
             if (currentCarRequest.isFree())
             {
-                val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
-                val idCheckType = carTypeGroup.checkedRadioButtonId
-                val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, radioBtnChecked.text.toString())
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                bottomPaymentBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
             else
                 Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
 
+        val multiCardWidget = bottomPaymentLayout.findViewById<CardMultilineWidget>(R.id.card_multiline_widget)
+
+        multiCardWidget.setCardValidCallback(object : CardValidCallback{
+            override fun onInputChanged(
+                isValid: Boolean,
+                invalidFields: Set<CardValidCallback.Fields>
+            ) {
+                if (isValid)
+                {
+                    payBtn.isEnabled = true
+                    payBtn.isClickable = true
+                    payBtn.setBackgroundColor(getResources().getColor(R.color.primary_color))
+                }
+                else
+                {
+                    payBtn.isEnabled = false
+                    payBtn.isClickable = false
+                    payBtn.setBackgroundColor(Color.parseColor("#DAD6D6D6"))
+                }
+            }
+
+        })
+
+        payBtn.setOnClickListener {
+            val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
+            val idCheckType = carTypeGroup.checkedRadioButtonId
+            val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
+            homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, radioBtnChecked.text.toString())
+        }
 
         val routeStatusObserver = Observer<Boolean> {status ->
             when (status){
                 true -> {
                     alertDialog.dismiss()
+                    if (bottomPaymentBehavior.state != BottomSheetBehavior.STATE_HIDDEN)
+                        bottomPaymentBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                     }
@@ -223,7 +260,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             when (status) {
                 "Request a car successfully" -> {
                     Toast.makeText(this@HomeActivity, currentCarRequest.id.toString(), Toast.LENGTH_LONG).show()
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    bottomPaymentBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     // socket config
                     val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, Const.address)
                     Toast.makeText(this, "Start connecting to server", Toast.LENGTH_SHORT).show()
