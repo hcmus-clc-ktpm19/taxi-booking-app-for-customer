@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.wibercustomer.R
 import com.example.wibercustomer.databinding.ActivityHomeBinding
 import com.example.wibercustomer.models.CarRequest
+import com.example.wibercustomer.models.enums.CarType
 import com.example.wibercustomer.strategies.cardMethod
 import com.example.wibercustomer.strategies.cashMethod
 import com.example.wibercustomer.utils.Const
@@ -271,7 +272,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
             val idCheckType = carTypeGroup.checkedRadioButtonId
             val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
-            homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, radioBtnChecked.text.toString())
+            if (radioBtnChecked.text.toString().equals("4 seats"))
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status)
+            else
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status)
         }
 
         val routeStatusObserver = Observer<Boolean> {status ->
