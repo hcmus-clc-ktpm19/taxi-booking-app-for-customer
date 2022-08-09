@@ -53,7 +53,7 @@ class HomeViewModel : ViewModel() {
 
     private val _carRequestValue = MutableLiveData<CarRequest>().apply {
         value = CarRequest(null, "", "", "", "", 0.0, 0.0,
-                                0.0, 0.0, "")
+                                0.0, 0.0, "", 0.0, 0.0)
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
@@ -121,7 +121,7 @@ class HomeViewModel : ViewModel() {
 
     var requestCarStatus = MutableLiveData<String>()
 
-    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng, carType : String){
+    fun checkCustomerIsValidAndRequestCar(startLocation: LatLng, destinatioLocation: LatLng, carType : String, price: Double, distance: Double){
         CustomerService.customerService.getAPICustomerInfo(SigninActivity.phoneNumberLoginFromSignIn, "Bearer ${SigninActivity.authCustomerTokenFromSignIn.accessToken}")
             .enqueue(object : Callback<CustomerInfo>{
                 override fun onResponse(
@@ -133,7 +133,7 @@ class HomeViewModel : ViewModel() {
                         val carRequest = CarRequest(null, response.body()!!.id, response.body()!!.phone,
                             pickingAddressValue.value!!, arrivingAddressValue.value!!,
                             startLocation.longitude, startLocation.latitude,
-                            destinatioLocation.longitude, destinatioLocation.latitude, carType)
+                            destinatioLocation.longitude, destinatioLocation.latitude, carType, price, distance)
                         carRequest.status = CarRequestStatus.WAITING.name
                         requestCarByCustomer(carRequest)
                     }
