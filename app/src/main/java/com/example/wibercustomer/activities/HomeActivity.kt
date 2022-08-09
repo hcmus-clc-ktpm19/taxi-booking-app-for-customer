@@ -89,7 +89,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val toWhereLayout = bottomLayout.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
         val distanceLayout = bottomLayout.findViewById<TextInputLayout>(R.id.distanceToGo)
         val moneyLayout = bottomPaymentLayout.findViewById<TextInputLayout>(R.id.moneyToPay)
-        val requestCarbtn = bottomLayout.findViewById<Button>(R.id.requestCar)
+        val requestCarBtn = bottomLayout.findViewById<Button>(R.id.requestCar)
         val paymentSpinner = bottomPaymentLayout.findViewById<Spinner>(R.id.paymentMethodSpinner)
 
         alertDialog = SpotsDialog.Builder().setContext(this)
@@ -209,7 +209,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         val payBtn = bottomPaymentLayout.findViewById<Button>(R.id.payButton)
-        requestCarbtn.setOnClickListener { reqBtnOnClick ->
+        requestCarBtn.setOnClickListener { reqBtnOnClick ->
             if (currentCarRequest.isFree())
             {
                 homeViewModel.calculateMoneyValue()
@@ -272,10 +272,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
             val idCheckType = carTypeGroup.checkedRadioButtonId
             val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
+            val price = moneyLayout.editText!!.text.toString().split(" ")[0].toDouble()
+            val distance = distanceLayout.editText!!.text.toString().substring(0, distanceLayout.editText!!.text.toString().length - 1).toDouble()
             if (radioBtnChecked.text.toString().equals("4 seats"))
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status)
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status, price, distance)
             else
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status)
+                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status, price, distance)
         }
 
         val routeStatusObserver = Observer<Boolean> {status ->

@@ -17,7 +17,9 @@ class CarRequest(
     var latPickingAddress: Double,
     var lngArrivingAddress: Double,
     var latArrivingAddress: Double,
-    var carType: String
+    var carType: String,
+    var price: Double,
+    var distance: Double,
 ) {
     lateinit var currentState : CarRequestState
     lateinit var status: String
