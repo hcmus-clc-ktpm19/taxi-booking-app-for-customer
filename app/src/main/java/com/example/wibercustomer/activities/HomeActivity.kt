@@ -1,6 +1,7 @@
 package com.example.wibercustomer.activities
 
 import android.Manifest
+import android.R.attr.showText
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -48,10 +49,10 @@ import dmax.dialog.SpotsDialog
 import org.json.JSONException
 import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.StompMessage
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -73,6 +74,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     val paymentMethods = arrayOf("Cash", "VISA/MASTER Card")
 
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -316,9 +318,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         Log.i(Const.TAG, "Receive: $jsonObject")
                         runOnUiThread {
                             try {
-                                // show result here
+                                // show driver information here
                                 val message = jsonObject.getString("message")
-                                homeViewModel.nextStateCarRequest(currentCarRequest)
+                                // TODO: we need to update this line because when the 2nd message come, it will change the status to FREE again.
+                                if(message.contains(" has accepted your request!"))
+                                    homeViewModel.nextStateCarRequest(currentCarRequest)
                                 MaterialAlertDialogBuilder(this@HomeActivity)
                                     .setTitle("Result")
                                     .setMessage(message)
@@ -340,7 +344,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         homeViewModel.requestCarStatus.observe(this, carRequestStatusObserver)
 }
 
-override fun onPause() {
+    override fun onPause() {
     super.onPause()
 
 }
