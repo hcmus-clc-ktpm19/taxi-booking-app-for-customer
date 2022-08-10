@@ -1,16 +1,18 @@
 package com.example.wibercustomer.activities
 
 import android.Manifest
-import android.R.attr.showText
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.support.annotation.DrawableRes
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -36,10 +38,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
@@ -49,10 +48,10 @@ import dmax.dialog.SpotsDialog
 import org.json.JSONException
 import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
-import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.StompMessage
 import java.io.IOException
 import java.util.*
+import kotlin.math.ln
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -71,6 +70,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomPaymentBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var currentCarRequest: CarRequest
     private lateinit var alertDialog : AlertDialog
+
+    internal var driverLocationMarker: Marker? = null
 
     val paymentMethods = arrayOf("Cash", "VISA/MASTER Card")
 
@@ -319,17 +320,26 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         runOnUiThread {
                             try {
                                 // show driver information here
-                                val message = jsonObject.getString("message")
                                 // TODO: we need to update this line because when the 2nd message come, it will change the status to FREE again.
-                                if(message.contains(" has accepted your request!"))
+                                if(!currentCarRequest.isAccepted())
+                                {
+                                    val message = jsonObject.getString("message")
                                     homeViewModel.nextStateCarRequest(currentCarRequest)
-                                MaterialAlertDialogBuilder(this@HomeActivity)
-                                    .setTitle("Result")
-                                    .setMessage(message)
-                                    .setPositiveButton("OK") { dialog, which ->
-                                        dialog.dismiss()
-                                    }
-                                    .show()
+                                    MaterialAlertDialogBuilder(this@HomeActivity)
+                                        .setTitle("Result")
+                                        .setMessage(message)
+                                        .setPositiveButton("OK") { dialog, which ->
+                                            dialog.dismiss()
+                                        }
+                                        .show()
+                                }
+                                else
+                                {
+                                    val latDriver = jsonObject.getDouble("latDriver")
+                                    val lngDriver = jsonObject.getDouble("lngDriver")
+                                    Log.i("testing", "$latDriver $lngDriver")
+                                    homeViewModel.setDriverValue(LatLng(latDriver, lngDriver))
+                                }
                             } catch (e: JSONException) {
                                 e.printStackTrace()
                             }
@@ -342,6 +352,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         homeViewModel.requestCarStatus.observe(this, carRequestStatusObserver)
+
+        homeViewModel.driverDestinationValue.observe(this){ it ->
+            if (it != null)
+            {
+                if (driverLocationMarker != null) {
+                    driverLocationMarker!!.remove()
+                }
+                    //Put marker on map on that LatLng
+                driverLocationMarker = mMap.addMarker(
+                    MarkerOptions().position(it).title("Driver")
+                        .icon(bitMapFromVector(R.drawable.ic_driver))
+                        .flat(true)
+                )
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(it))
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+            }
+        }
 }
 
     override fun onPause() {
@@ -399,5 +427,13 @@ private fun hideKeyboad() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
+    private fun bitMapFromVector(vectorResID:Int):BitmapDescriptor {
+        val vectorDrawable=ContextCompat.getDrawable(this,vectorResID)
+        vectorDrawable!!.setBounds(0,0,vectorDrawable!!.intrinsicWidth,vectorDrawable.intrinsicHeight)
+        val bitmap=Bitmap.createBitmap(vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight,Bitmap.Config.ARGB_8888)
+        val canvas=Canvas(bitmap)
+        vectorDrawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
 
 }
