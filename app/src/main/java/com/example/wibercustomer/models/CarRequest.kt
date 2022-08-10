@@ -51,6 +51,9 @@ class CarRequest(
         return currentState.isFree(this)
     }
 
+    fun isAccepted() : Boolean{
+        return currentState.isAccepted(this)
+    }
 
 
 }

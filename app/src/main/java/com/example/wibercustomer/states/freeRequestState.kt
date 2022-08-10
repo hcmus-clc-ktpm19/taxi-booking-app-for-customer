@@ -15,4 +15,7 @@ class freeRequestState() : CarRequestState {
     override fun isFree(carRequest: CarRequest): Boolean {
         return true
     }
+    override fun isAccepted(carRequest: CarRequest): Boolean {
+        return false
+    }
 }

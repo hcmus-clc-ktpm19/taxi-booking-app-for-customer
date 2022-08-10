@@ -57,6 +57,11 @@ class HomeViewModel : ViewModel() {
     }
     val carRequestValue: LiveData<CarRequest> = _carRequestValue
 
+    private val _driverDestinationValue = MutableLiveData<LatLng?>().apply {
+        value = null
+    }
+    val driverDestinationValue: LiveData<LatLng?> = _driverDestinationValue
+
     var routeServiceStatus = MutableLiveData<Boolean>()
 
     fun getDirectionAndDistance(startLocation: LatLng, destinatioLocation: LatLng, geocoder : Geocoder) {
@@ -191,6 +196,11 @@ class HomeViewModel : ViewModel() {
     {
         paymentValue.value?.calculateMoney(distanceValue.value!!)
         _paymentValue.value = paymentValue.value
+    }
+
+    fun setDriverValue(newLatLng: LatLng)
+    {
+        _driverDestinationValue.value = newLatLng
     }
 
 }
