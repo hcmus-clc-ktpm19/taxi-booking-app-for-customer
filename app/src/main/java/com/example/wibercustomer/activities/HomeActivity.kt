@@ -335,10 +335,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                                 }
                                 else
                                 {
-                                    val latDriver = jsonObject.getDouble("latDriver")
-                                    val lngDriver = jsonObject.getDouble("lngDriver")
-                                    Log.i("testing", "$latDriver $lngDriver")
-                                    homeViewModel.setDriverValue(LatLng(latDriver, lngDriver))
+                                    if (jsonObject.has("message") && !jsonObject.isNull("message"))
+                                    {
+                                        //accepted -> free
+                                        val message = jsonObject.getString("message")
+                                        if (message.equals("Finished"))
+                                        {
+                                            homeViewModel.nextStateCarRequest(currentCarRequest)
+                                            //stop listen to old socket
+                                            stompClient.disconnect()
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val latDriver = jsonObject.getDouble("latDriver")
+                                        val lngDriver = jsonObject.getDouble("lngDriver")
+                                        Log.i("testing", "$latDriver $lngDriver")
+                                        homeViewModel.setDriverValue(LatLng(latDriver, lngDriver))
+                                    }
                                 }
                             } catch (e: JSONException) {
                                 e.printStackTrace()
