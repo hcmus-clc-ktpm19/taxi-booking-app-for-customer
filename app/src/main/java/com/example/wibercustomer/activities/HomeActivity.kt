@@ -75,7 +75,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     val paymentMethods = arrayOf("Cash", "VISA/MASTER Card")
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -182,24 +182,22 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
                         if (destinationLocationMarker != null) {
                             mMap.clear()
-                            mMap.addMarker(
-                                MarkerOptions()
-                                    .position(startLocation)
-                                    .title("You are here")
-                            )
                             destinationLocationMarker!!.remove()
                         }
                         //Put marker on map on that LatLng
                         destinationLocationMarker = mMap.addMarker(
                             MarkerOptions().position(destinatioLocation).title("Destination")
                         )
-                        homeViewModel.getDirectionAndDistance(
-                            startLocation,
-                            destinatioLocation,
-                            coder
-                        )
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
-                        mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                        fusedLocationProviderClient.lastLocation.addOnSuccessListener {
+                            startLocation = LatLng(it.latitude, it.longitude)
+                            homeViewModel.getDirectionAndDistance(
+                                startLocation,
+                                destinatioLocation,
+                                coder
+                            )
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(destinatioLocation))
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                        }
                     } else
                         Toast.makeText(this, "No address found", Toast.LENGTH_LONG).show()
                 } catch (e: IOException) {
@@ -272,15 +270,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         payBtn.setOnClickListener {
-            val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
-            val idCheckType = carTypeGroup.checkedRadioButtonId
-            val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
-            val price = moneyLayout.editText!!.text.toString().split(" ")[0].toDouble()
-            val distance = distanceLayout.editText!!.text.toString().substring(0, distanceLayout.editText!!.text.toString().length - 1).toDouble()
-            if (radioBtnChecked.text.toString().equals("4 seats"))
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status, price, distance)
-            else
-                homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status, price, distance)
+                val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
+                val idCheckType = carTypeGroup.checkedRadioButtonId
+                val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
+                val price = moneyLayout.editText!!.text.toString().split(" ")[0].toDouble()
+                val distance = distanceLayout.editText!!.text.toString().substring(0, distanceLayout.editText!!.text.toString().length - 1).toDouble()
+                if (radioBtnChecked.text.toString().equals("4 seats"))
+                    homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status, price, distance)
+                else
+                    homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status, price, distance)
         }
 
         val routeStatusObserver = Observer<Boolean> {status ->
@@ -342,6 +340,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                                         if (message.equals("Finished"))
                                         {
                                             homeViewModel.nextStateCarRequest(currentCarRequest)
+                                            mMap.clear()
                                             //stop listen to old socket
                                             stompClient.disconnect()
                                         }
@@ -424,11 +423,6 @@ override fun onMapReady(googleMap: GoogleMap) {
                 startLocation = LatLng(location.latitude, location.longitude)
                 Log.i("info", "current location: $currentLatLng")
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
-                mMap.addMarker(
-                    com.google.android.gms.maps.model.MarkerOptions()
-                        .position(currentLatLng)
-                        .title("You are here")
-                )
             }
         }
     }
