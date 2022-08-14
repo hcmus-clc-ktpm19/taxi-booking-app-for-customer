@@ -343,6 +343,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                                             mMap.clear()
                                             //stop listen to old socket
                                             stompClient.disconnect()
+                                            startActivity(Intent(this@HomeActivity, FinishTripActivity::class.java))
                                         }
                                     }
                                     else
