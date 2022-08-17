@@ -2,8 +2,11 @@ package com.example.wibercustomer.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.wibercustomer.activities.SigninActivity.Companion.authCustomerTokenFromSignIn
+import com.example.wibercustomer.activities.SigninActivity.Companion.phoneNumberLoginFromSignIn
 import com.example.wibercustomer.adapters.HistoryAdapter
 import com.example.wibercustomer.databinding.ActivityHistoryBinding
 import com.example.wibercustomer.viewmodels.HistoryViewModel
@@ -26,17 +29,29 @@ class HistoryActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
-
-        if (historyViewModel.historyList.value!!.isEmpty())
-            historyViewModel.initHistoryData()
-
         binding.historyRecyclerview.layoutManager = LinearLayoutManager(this)
 
-        val listUser = historyViewModel.historyList.value
+        historyViewModel.totalBalance.observe(this){
+            binding.totalBalance.text = it.toInt().toString() + " VND"
+        }
 
-        historyAdapter = HistoryAdapter(listUser!!)
+        historyViewModel.historyList.observe(this){
+            historyAdapter = HistoryAdapter(it)
 
-        binding.historyRecyclerview.adapter = historyAdapter
+            binding.historyRecyclerview.adapter = historyAdapter
+        }
 
+        historyViewModel.initHistoryData(phoneNumberLoginFromSignIn, authCustomerTokenFromSignIn)
+        val historyStatusObserver = Observer<String> { status ->
+            when(status) {
+                "Done" -> {
+                    val listUser = historyViewModel.historyList.value
+
+                }
+                else -> {
+
+                }
+            }
+        }
     }
 }
