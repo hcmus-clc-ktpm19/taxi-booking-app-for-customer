@@ -1,6 +1,7 @@
 package com.example.wibercustomer.api
 
 import com.example.wibercustomer.models.AuthToken
+import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.CustomerInfo
 import okhttp3.ResponseBody
 import retrofit2.Call

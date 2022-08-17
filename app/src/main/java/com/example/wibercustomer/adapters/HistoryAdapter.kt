@@ -6,18 +6,18 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wibercustomer.R
+import com.example.wibercustomer.models.CarRequest
 import com.example.wibercustomer.models.History
 import com.google.android.material.textfield.TextInputLayout
 
-class HistoryAdapter(internal var historyList: List<History>) :
+class HistoryAdapter(internal var historyList: List<CarRequest>) :
     RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
         val fromLayout = listItemView.findViewById<TextInputLayout>(R.id.fromInputLayout)
         val toWhereLayout = listItemView.findViewById<TextInputLayout>(R.id.toWhereInputLayout)
         val moneyPaidTV = listItemView.findViewById<TextView>(R.id.moneyPaid)
-        val starRateTV = listItemView.findViewById<TextView>(R.id.starRated)
-        val datePickTV = listItemView.findViewById<TextView>(R.id.datePick)
+        val distanceTV = listItemView.findViewById<TextView>(R.id.distanceTV)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,13 +28,12 @@ class HistoryAdapter(internal var historyList: List<History>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val perHistory: History = historyList.get(position)
+        val perHistory: CarRequest = historyList.get(position)
 
-        holder.fromLayout.editText?.setText(perHistory.fromLocation)
-        holder.toWhereLayout.editText?.setText(perHistory.toLocation)
-        holder.datePickTV.setText(perHistory.datePick)
-        holder.moneyPaidTV.setText(perHistory.moneyPaid.toString())
-        holder.starRateTV.setText(perHistory.starRated.toString())
+        holder.fromLayout.editText?.setText(perHistory.pickingAddress)
+        holder.toWhereLayout.editText?.setText(perHistory.arrivingAddress)
+        holder.moneyPaidTV.text = perHistory.price.toInt().toString()
+        holder.distanceTV.text = perHistory.distance.toString()
     }
 
     override fun getItemCount(): Int {
