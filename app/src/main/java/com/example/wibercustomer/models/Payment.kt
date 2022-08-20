@@ -20,10 +20,9 @@ data class Payment(
         currentPayment = cashMethod()
     }
 
-    fun calculateMoney(distance : Double)
+    fun get_money_to_pay(distance : Double)
     {
-        val moneyDistance = (distance/ 500) * 3000 + 15000
-        moneyToPay =  moneyDistance + currentPayment.fare * moneyDistance
+        moneyToPay =  currentPayment.calculateMoney(distance)
     }
 
 }
