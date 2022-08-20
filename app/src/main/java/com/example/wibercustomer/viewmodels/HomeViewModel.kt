@@ -194,7 +194,7 @@ class HomeViewModel : ViewModel() {
 
     fun calculateMoneyValue()
     {
-        paymentValue.value?.calculateMoney(distanceValue.value!!)
+        paymentValue.value?.get_money_to_pay(distanceValue.value!!)
         _paymentValue.value = paymentValue.value
     }
 
