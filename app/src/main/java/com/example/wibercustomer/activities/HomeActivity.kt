@@ -3,16 +3,19 @@ package com.example.wibercustomer.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.support.annotation.DrawableRes
+import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -42,6 +45,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import com.squareup.picasso.Picasso
 import com.stripe.android.view.CardMultilineWidget
 import com.stripe.android.view.CardValidCallback
 import dmax.dialog.SpotsDialog
@@ -69,7 +73,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomPaymentLayout: LinearLayout
     private lateinit var bottomPaymentBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var currentCarRequest: CarRequest
-    private lateinit var alertDialog : AlertDialog
+    private lateinit var alertDialog: AlertDialog
+    private lateinit var dialog: Dialog
 
     internal var driverLocationMarker: Marker? = null
 
@@ -121,10 +126,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             binding.testState.text = currentCarRequest.status
         }
 
-        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, paymentMethods)
+        val arrayAdapter = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            paymentMethods
+        )
 
         paymentSpinner.adapter = arrayAdapter
-
 
 
         val toolbar = binding.toolbar
@@ -211,47 +219,40 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val payBtn = bottomPaymentLayout.findViewById<Button>(R.id.payButton)
         requestCarBtn.setOnClickListener { reqBtnOnClick ->
-            if (currentCarRequest.isFree())
-            {
+            if (currentCarRequest.isFree()) {
                 homeViewModel.calculateMoneyValue()
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 bottomPaymentBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
-            else
+            } else
                 Toast.makeText(this, "You are currently unable to book", Toast.LENGTH_LONG).show()
         }
 
-        val multiCardWidget = bottomPaymentLayout.findViewById<CardMultilineWidget>(R.id.card_multiline_widget)
+        val multiCardWidget =
+            bottomPaymentLayout.findViewById<CardMultilineWidget>(R.id.card_multiline_widget)
 
-        paymentSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        paymentSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                if (paymentMethods[p2].equals("Cash"))
-                {
+                if (paymentMethods[p2].equals("Cash")) {
                     homeViewModel.paymentValue.value?.currentPayment = cashMethod()
                     homeViewModel.calculateMoneyValue()
                     multiCardWidget.visibility = View.GONE
                     payBtn.isEnabled = true
                     payBtn.isClickable = true
                     payBtn.setBackgroundColor(getResources().getColor(R.color.primary_color))
-                }
-                else
-                {
+                } else {
                     homeViewModel.paymentValue.value?.currentPayment = cardMethod()
                     homeViewModel.calculateMoneyValue()
                     multiCardWidget.visibility = View.VISIBLE
-                    multiCardWidget.setCardValidCallback(object : CardValidCallback{
+                    multiCardWidget.setCardValidCallback(object : CardValidCallback {
                         override fun onInputChanged(
                             isValid: Boolean,
                             invalidFields: Set<CardValidCallback.Fields>
                         ) {
-                            if (isValid)
-                            {
+                            if (isValid) {
                                 payBtn.isEnabled = true
                                 payBtn.isClickable = true
                                 payBtn.setBackgroundColor(getResources().getColor(R.color.primary_color))
-                            }
-                            else
-                            {
+                            } else {
                                 payBtn.isEnabled = false
                                 payBtn.isClickable = false
                                 payBtn.setBackgroundColor(Color.parseColor("#DAD6D6D6"))
@@ -270,19 +271,32 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         payBtn.setOnClickListener {
-                val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
-                val idCheckType = carTypeGroup.checkedRadioButtonId
-                val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
-                val price = moneyLayout.editText!!.text.toString().split(" ")[0].toDouble()
-                val distance = distanceLayout.editText!!.text.toString().substring(0, distanceLayout.editText!!.text.toString().length - 1).toDouble()
-                if (radioBtnChecked.text.toString().equals("4 seats"))
-                    homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.FOUR_SEATS.status, price, distance)
-                else
-                    homeViewModel.checkCustomerIsValidAndRequestCar(startLocation, destinatioLocation, CarType.SEVEN_SEATS.status, price, distance)
+            val carTypeGroup = bottomLayout.findViewById<RadioGroup>(R.id.chooseCarTypeGroup)
+            val idCheckType = carTypeGroup.checkedRadioButtonId
+            val radioBtnChecked = bottomLayout.findViewById<RadioButton>(idCheckType)
+            val price = moneyLayout.editText!!.text.toString().split(" ")[0].toDouble()
+            val distance = distanceLayout.editText!!.text.toString()
+                .substring(0, distanceLayout.editText!!.text.toString().length - 1).toDouble()
+            if (radioBtnChecked.text.toString().equals("4 seats"))
+                homeViewModel.checkCustomerIsValidAndRequestCar(
+                    startLocation,
+                    destinatioLocation,
+                    CarType.FOUR_SEATS.status,
+                    price,
+                    distance
+                )
+            else
+                homeViewModel.checkCustomerIsValidAndRequestCar(
+                    startLocation,
+                    destinatioLocation,
+                    CarType.SEVEN_SEATS.status,
+                    price,
+                    distance
+                )
         }
 
-        val routeStatusObserver = Observer<Boolean> {status ->
-            when (status){
+        val routeStatusObserver = Observer<Boolean> { status ->
+            when (status) {
                 true -> {
                     alertDialog.dismiss()
                     if (bottomPaymentBehavior.state != BottomSheetBehavior.STATE_HIDDEN)
@@ -293,7 +307,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 else -> {
                     alertDialog.dismiss()
-                    Toast.makeText(this@HomeActivity, "Can not connect to Route Service", Toast.LENGTH_LONG)
+                    Toast.makeText(
+                        this@HomeActivity,
+                        "Can not connect to Route Service",
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 }
             }
@@ -303,7 +321,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val carRequestStatusObserver = Observer<String> { status ->
             when (status) {
                 "Request a car successfully" -> {
-                    Toast.makeText(this@HomeActivity, currentCarRequest.id.toString(), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@HomeActivity,
+                        currentCarRequest.id.toString(),
+                        Toast.LENGTH_LONG
+                    ).show()
                     bottomPaymentBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                     // socket config
                     val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, Const.address)
@@ -311,43 +333,51 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     stompClient.connect()
                     StompUtils.lifecycle(stompClient)
                     Log.i(Const.TAG, "Subscribe chat endpoint to receive response")
-                    stompClient.topic(Const.chatResponse.replace(Const.placeholder, currentCarRequest.id.toString())).subscribe{
-                            stompMessage: StompMessage ->
+                    stompClient.topic(
+                        Const.chatResponse.replace(
+                            Const.placeholder,
+                            currentCarRequest.id.toString()
+                        )
+                    ).subscribe { stompMessage: StompMessage ->
                         val jsonObject = JSONObject(stompMessage.payload)
                         Log.i(Const.TAG, "Receive: $jsonObject")
                         runOnUiThread {
                             try {
                                 // show driver information here
                                 // TODO: we need to update this line because when the 2nd message come, it will change the status to FREE again.
-                                if(!currentCarRequest.isAccepted())
-                                {
+                                if (!currentCarRequest.isAccepted()) {
                                     val message = jsonObject.getString("message")
+                                    val driverInfo = message.split(" | ")
+                                    Log.i("driverInfo", driverInfo[0])
+                                    Log.i("driverInfo", driverInfo[1])
+                                    Log.i("driverInfo", driverInfo[2])
                                     homeViewModel.nextStateCarRequest(currentCarRequest)
-                                    MaterialAlertDialogBuilder(this@HomeActivity)
-                                        .setTitle("Result")
-                                        .setMessage(message)
-                                        .setPositiveButton("OK") { dialog, which ->
-                                            dialog.dismiss()
-                                        }
-                                        .show()
-                                }
-                                else
-                                {
-                                    if (jsonObject.has("message") && !jsonObject.isNull("message"))
-                                    {
+                                    showDriverInfoDialog(driverInfo[0], driverInfo[1], driverInfo[2])
+//                                    MaterialAlertDialogBuilder(this@HomeActivity)
+//                                        .setTitle("Result")
+//                                        .setMessage(message)
+//                                        .setPositiveButton("OK") { dialog, which ->
+//                                            dialog.dismiss()
+//                                        }
+//                                        .show()
+
+                                } else {
+                                    if (jsonObject.has("message") && !jsonObject.isNull("message")) {
                                         //accepted -> free
                                         val message = jsonObject.getString("message")
-                                        if (message.equals("Finished"))
-                                        {
+                                        if (message.equals("Finished")) {
                                             homeViewModel.nextStateCarRequest(currentCarRequest)
                                             mMap.clear()
                                             //stop listen to old socket
                                             stompClient.disconnect()
-                                            startActivity(Intent(this@HomeActivity, FinishTripActivity::class.java))
+                                            startActivity(
+                                                Intent(
+                                                    this@HomeActivity,
+                                                    FinishTripActivity::class.java
+                                                )
+                                            )
                                         }
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         val latDriver = jsonObject.getDouble("latDriver")
                                         val lngDriver = jsonObject.getDouble("lngDriver")
                                         Log.i("testing", "$latDriver $lngDriver")
@@ -367,13 +397,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         homeViewModel.requestCarStatus.observe(this, carRequestStatusObserver)
 
-        homeViewModel.driverDestinationValue.observe(this){ it ->
-            if (it != null)
-            {
+        homeViewModel.driverDestinationValue.observe(this) { it ->
+            if (it != null) {
                 if (driverLocationMarker != null) {
                     driverLocationMarker!!.remove()
                 }
-                    //Put marker on map on that LatLng
+                //Put marker on map on that LatLng
                 driverLocationMarker = mMap.addMarker(
                     MarkerOptions().position(it).title("Driver")
                         .icon(bitMapFromVector(R.drawable.ic_driver))
@@ -384,63 +413,93 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15f))
             }
         }
-}
+    }
 
     override fun onPause() {
-    super.onPause()
+        super.onPause()
 
-}
-
-
-@SuppressLint("MissingPermission")
-override fun onMapReady(googleMap: GoogleMap) {
-    mMap = googleMap
-    homeViewModel.geoPoint.observe(this) {
-        val polylineOptions = PolylineOptions()
-        polylineOptions.addAll(it)
-        mMap.addPolyline(polylineOptions)
     }
-    // Add a marker at current user location and move the camera
-    mMap.uiSettings.isZoomControlsEnabled = false
-    val permissionCheck = ContextCompat.checkSelfPermission(
-        this,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    )
-    if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-        Log.i("info", "permission denied")
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ), 1
+
+    fun showDriverInfoDialog(name: String, phone: String, avatar: String) {
+        dialog = Dialog(this)
+        dialog.setContentView(R.layout.driver_info)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val driverImageView = dialog.findViewById<ImageView>(R.id.driver_avatar)
+        val driverName = dialog.findViewById<TextView>(R.id.driver_name)
+        val driverPhone = dialog.findViewById<TextView>(R.id.driver_phone)
+        val okBtn = dialog.findViewById<Button>(R.id.ok_button)
+
+        // load image
+        if (!TextUtils.isEmpty(avatar)) Picasso.get().load(avatar)
+            .into(driverImageView)
+        driverName.text = name
+        driverPhone.text = phone
+        dialog.show()
+        okBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        homeViewModel.geoPoint.observe(this) {
+            val polylineOptions = PolylineOptions()
+            polylineOptions.addAll(it)
+            mMap.addPolyline(polylineOptions)
+        }
+        // Add a marker at current user location and move the camera
+        mMap.uiSettings.isZoomControlsEnabled = false
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
         )
-    } else {
-        Log.i("info", "permission granted")
-        mMap.isMyLocationEnabled = true
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                startLocation = LatLng(location.latitude, location.longitude)
-                Log.i("info", "current location: $currentLatLng")
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            Log.i("info", "permission denied")
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ), 1
+            )
+        } else {
+            Log.i("info", "permission granted")
+            mMap.isMyLocationEnabled = true
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    startLocation = LatLng(location.latitude, location.longitude)
+                    Log.i("info", "current location: $currentLatLng")
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                }
             }
         }
     }
-}
 
-private fun hideKeyboad() {
-    val view: View? = this.currentFocus
-    if (view != null) {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    private fun hideKeyboad() {
+        val view: View? = this.currentFocus
+        if (view != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
-}
-    private fun bitMapFromVector(vectorResID:Int):BitmapDescriptor {
-        val vectorDrawable=ContextCompat.getDrawable(this,vectorResID)
-        vectorDrawable!!.setBounds(0,0,vectorDrawable!!.intrinsicWidth,vectorDrawable.intrinsicHeight)
-        val bitmap=Bitmap.createBitmap(vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight,Bitmap.Config.ARGB_8888)
-        val canvas=Canvas(bitmap)
+
+    private fun bitMapFromVector(vectorResID: Int): BitmapDescriptor {
+        val vectorDrawable = ContextCompat.getDrawable(this, vectorResID)
+        vectorDrawable!!.setBounds(
+            0,
+            0,
+            vectorDrawable!!.intrinsicWidth,
+            vectorDrawable.intrinsicHeight
+        )
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
